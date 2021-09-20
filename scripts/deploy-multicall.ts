@@ -4,12 +4,10 @@ import {log} from '../config/logging'
 async function main() {
   await run('compile')
 
-  const accounts = await ethers.getSigners()
+  const Multicall = await ethers.getContractFactory('Multicall')
+  const aggregate = await Multicall.deploy()
 
-  log.info(
-    'Accounts:',
-    accounts.map((a) => a.address)
-  )
+  log.info('Deployed Multicall contract @ %s', aggregate.address)
 }
 
 main()
