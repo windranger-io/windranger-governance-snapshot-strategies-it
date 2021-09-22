@@ -26,5 +26,18 @@ task('blockNumber', 'Prints the current block number', async (_, {ethers}) => {
 // Go to https://hardhat.org/config/ to learn more
 // At time of authoring 0.8.4 was the latest version supported by Hardhat
 export default {
+  networks: {
+    hardhat: {
+      chainId: 33133,
+      allowUnlimitedContractSize: true,
+      loggingEnabled: true
+    },
+    local: {
+      url: 'http://localhost:8545',
+      chainId: 33133,
+      allowUnlimitedContractSize: true,
+      loggingEnabled: true
+    }
+  },
   solidity: '0.8.4'
 }
