@@ -1,924 +1,1072 @@
+/**
+ *Submitted for verification at Etherscan.io on 2021-06-28
+*/
+
+// Dependency file: @openzeppelin/contracts/math/SafeMath.sol
+
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+// pragma solidity >=0.6.0 <0.8.0;
 
-import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import '@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol';
-import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
-import '@openzeppelin/contracts/utils/Counters.sol';
-import '@openzeppelin/contracts/utils/Address.sol';
-import '@openzeppelin/contracts/utils/Context.sol';
-import '@openzeppelin/contracts/utils/Timers.sol';
-import '@openzeppelin/contracts/utils/math/SafeCast.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/governance/TimelockController.sol';
+/**
+ * @dev Wrappers over Solidity's arithmetic operations with added overflow
+ * checks.
+ *
+ * Arithmetic operations in Solidity wrap on overflow. This can easily result
+ * in bugs, because programmers usually assume that an overflow raises an
+ * error, which is the standard behavior in high level programming languages.
+ * `SafeMath` restores this intuition by reverting the transaction when an
+ * operation overflows.
+ *
+ * Using this library instead of the unchecked operations eliminates an entire
+ * class of bugs, so it's recommended to use it always.
+ */
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        uint256 c = a + b;
+        if (c < a) return (false, 0);
+        return (true, c);
+    }
 
-// BitDAO token contract interface.
-interface IERC20Votes is IERC20 {
-    function getCurrentVotes(address account) external returns (uint256);
+    /**
+     * @dev Returns the substraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        if (b > a) return (false, 0);
+        return (true, a - b);
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+        if (a == 0) return (true, 0);
+        uint256 c = a * b;
+        if (c / a != b) return (false, 0);
+        return (true, c);
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        if (b == 0) return (false, 0);
+        return (true, a / b);
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        if (b == 0) return (false, 0);
+        return (true, a % b);
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+        return c;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b <= a, "SafeMath: subtraction overflow");
+        return a - b;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) return 0;
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+        return c;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b > 0, "SafeMath: division by zero");
+        return a / b;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b > 0, "SafeMath: modulo by zero");
+        return a % b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        return a - b;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryDiv}.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        return a / b;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting with custom message when dividing by zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryMod}.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        return a % b;
+    }
 }
 
-// Governance contract.
-contract Governance is Context, ERC165, EIP712 {
-    using SafeCast for uint256;
+
+// Dependency file: @openzeppelin/contracts/math/Math.sol
+
+
+// pragma solidity >=0.6.0 <0.8.0;
+
+/**
+ * @dev Standard math utilities missing in the Solidity language.
+ */
+library Math {
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a >= b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two numbers. The result is rounded towards
+     * zero.
+     */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow, so we distribute
+        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);
+    }
+}
+
+
+// Dependency file: @openzeppelin/contracts/utils/Arrays.sol
+
+
+// pragma solidity >=0.6.0 <0.8.0;
+
+// import "@openzeppelin/contracts/math/Math.sol";
+
+/**
+ * @dev Collection of functions related to array types.
+ */
+library Arrays {
+    /**
+      * @dev Searches a sorted `array` and returns the first index that contains
+      * a value greater or equal to `element`. If no such index exists (i.e. all
+      * values in the array are strictly less than `element`), the array length is
+      * returned. Time complexity O(log n).
+      *
+      * `array` is expected to be sorted in ascending order, and to contain no
+      * repeated elements.
+      */
+    function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
+        if (array.length == 0) {
+            return 0;
+        }
+
+        uint256 low = 0;
+        uint256 high = array.length;
+
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+
+            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
+            // because Math.average rounds down (it does integer division with truncation).
+            if (array[mid] > element) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        // At this point `low` is the exclusive upper bound. We will return the inclusive upper bound.
+        if (low > 0 && array[low - 1] == element) {
+            return low - 1;
+        } else {
+            return low;
+        }
+    }
+}
+
+
+// Dependency file: @openzeppelin/contracts/utils/Counters.sol
+
+
+// pragma solidity >=0.6.0 <0.8.0;
+
+// import "@openzeppelin/contracts/math/SafeMath.sol";
+
+/**
+ * @title Counters
+ * @author Matt Condon (@shrugs)
+ * @dev Provides counters that can only be incremented or decremented by one. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids.
+ *
+ * Include with `using Counters for Counters.Counter;`
+ * Since it is not possible to overflow a 256 bit integer with increments of one, `increment` can skip the {SafeMath}
+ * overflow check, thereby saving gas. This does assume however correct usage, in that the underlying `_value` is never
+ * directly accessed.
+ */
+library Counters {
+    using SafeMath for uint256;
+
+    struct Counter {
+        // This variable should never be directly accessed by users of the library: interactions must be restricted to
+        // the library's function. As of Solidity v0.5.2, this cannot be enforced, though there is a proposal to add
+        // this feature: see https://github.com/ethereum/solidity/issues/4637
+        uint256 _value; // default: 0
+    }
+
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal {
+        // The {SafeMath} overflow check can be skipped here, see the comment at the top
+        counter._value += 1;
+    }
+
+    function decrement(Counter storage counter) internal {
+        counter._value = counter._value.sub(1);
+    }
+}
+
+
+// Dependency file: @openzeppelin/contracts/utils/Context.sol
+
+
+// pragma solidity >=0.6.0 <0.8.0;
+
+/*
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with GSN meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address payable) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes memory) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
+    }
+}
+
+
+// Dependency file: @openzeppelin/contracts/token/ERC20/IERC20.sol
+
+
+// pragma solidity >=0.6.0 <0.8.0;
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `sender` to `recipient` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+
+// Dependency file: @openzeppelin/contracts/token/ERC20/ERC20.sol
+
+
+// pragma solidity >=0.6.0 <0.8.0;
+
+// import "@openzeppelin/contracts/utils/Context.sol";
+// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// import "@openzeppelin/contracts/math/SafeMath.sol";
+
+/**
+ * @dev Implementation of the {IERC20} interface.
+ *
+ * This implementation is agnostic to the way tokens are created. This means
+ * that a supply mechanism has to be added in a derived contract using {_mint}.
+ * For a generic mechanism see {ERC20PresetMinterPauser}.
+ *
+ * TIP: For a detailed writeup see our guide
+ * https://forum.zeppelin.solutions/t/how-to-implement-erc20-supply-mechanisms/226[How
+ * to implement supply mechanisms].
+ *
+ * We have followed general OpenZeppelin guidelines: functions revert instead
+ * of returning `false` on failure. This behavior is nonetheless conventional
+ * and does not conflict with the expectations of ERC20 applications.
+ *
+ * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
+ * This allows applications to reconstruct the allowance for all accounts just
+ * by listening to said events. Other implementations of the EIP may not emit
+ * these events, as it isn't required by the specification.
+ *
+ * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
+ * functions have been added to mitigate the well-known issues around setting
+ * allowances. See {IERC20-approve}.
+ */
+contract ERC20 is Context, IERC20 {
+    using SafeMath for uint256;
+
+    mapping (address => uint256) private _balances;
+
+    mapping (address => mapping (address => uint256)) private _allowances;
+
+    uint256 private _totalSupply;
+
+    string private _name;
+    string private _symbol;
+    uint8 private _decimals;
+
+    /**
+     * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
+     * a default value of 18.
+     *
+     * To select a different value for {decimals}, use {_setupDecimals}.
+     *
+     * All three of these values are immutable: they can only be set once during
+     * construction.
+     */
+    constructor (string memory name_, string memory symbol_) public {
+        _name = name_;
+        _symbol = symbol_;
+        _decimals = 18;
+    }
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view virtual returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token, usually a shorter version of the
+     * name.
+     */
+    function symbol() public view virtual returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * For example, if `decimals` equals `2`, a balance of `505` tokens should
+     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
+     *
+     * Tokens usually opt for a value of 18, imitating the relationship between
+     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
+     * called.
+     *
+     * NOTE: This information is only used for _display_ purposes: it in
+     * no way affects any of the arithmetic of the contract, including
+     * {IERC20-balanceOf} and {IERC20-transfer}.
+     */
+    function decimals() public view virtual returns (uint8) {
+        return _decimals;
+    }
+
+    /**
+     * @dev See {IERC20-totalSupply}.
+     */
+    function totalSupply() public view virtual override returns (uint256) {
+        return _totalSupply;
+    }
+
+    /**
+     * @dev See {IERC20-balanceOf}.
+     */
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return _balances[account];
+    }
+
+    /**
+     * @dev See {IERC20-transfer}.
+     *
+     * Requirements:
+     *
+     * - `recipient` cannot be the zero address.
+     * - the caller must have a balance of at least `amount`.
+     */
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+        _transfer(_msgSender(), recipient, amount);
+        return true;
+    }
+
+    /**
+     * @dev See {IERC20-allowance}.
+     */
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    /**
+     * @dev See {IERC20-approve}.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     */
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        _approve(_msgSender(), spender, amount);
+        return true;
+    }
+
+    /**
+     * @dev See {IERC20-transferFrom}.
+     *
+     * Emits an {Approval} event indicating the updated allowance. This is not
+     * required by the EIP. See the note at the beginning of {ERC20}.
+     *
+     * Requirements:
+     *
+     * - `sender` and `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `amount`.
+     * - the caller must have allowance for ``sender``'s tokens of at least
+     * `amount`.
+     */
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        _transfer(sender, recipient, amount);
+        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        return true;
+    }
+
+    /**
+     * @dev Atomically increases the allowance granted to `spender` by the caller.
+     *
+     * This is an alternative to {approve} that can be used as a mitigation for
+     * problems described in {IERC20-approve}.
+     *
+     * Emits an {Approval} event indicating the updated allowance.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     */
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
+        return true;
+    }
+
+    /**
+     * @dev Atomically decreases the allowance granted to `spender` by the caller.
+     *
+     * This is an alternative to {approve} that can be used as a mitigation for
+     * problems described in {IERC20-approve}.
+     *
+     * Emits an {Approval} event indicating the updated allowance.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     * - `spender` must have allowance for the caller of at least
+     * `subtractedValue`.
+     */
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
+        return true;
+    }
+
+    /**
+     * @dev Moves tokens `amount` from `sender` to `recipient`.
+     *
+     * This is internal function is equivalent to {transfer}, and can be used to
+     * e.g. implement automatic token fees, slashing mechanisms, etc.
+     *
+     * Emits a {Transfer} event.
+     *
+     * Requirements:
+     *
+     * - `sender` cannot be the zero address.
+     * - `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `amount`.
+     */
+    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
+
+        _beforeTokenTransfer(sender, recipient, amount);
+
+        _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
+        _balances[recipient] = _balances[recipient].add(amount);
+        emit Transfer(sender, recipient, amount);
+    }
+
+    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
+     * the total supply.
+     *
+     * Emits a {Transfer} event with `from` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     */
+    function _mint(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
+
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
+    }
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, reducing the
+     * total supply.
+     *
+     * Emits a {Transfer} event with `to` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     * - `account` must have at least `amount` tokens.
+     */
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+
+        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
+        _totalSupply = _totalSupply.sub(amount);
+        emit Transfer(account, address(0), amount);
+    }
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
+     *
+     * This internal function is equivalent to `approve`, and can be used to
+     * e.g. set automatic allowances for certain subsystems, etc.
+     *
+     * Emits an {Approval} event.
+     *
+     * Requirements:
+     *
+     * - `owner` cannot be the zero address.
+     * - `spender` cannot be the zero address.
+     */
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+    /**
+     * @dev Sets {decimals} to a value other than the default one of 18.
+     *
+     * WARNING: This function should only be called from the constructor. Most
+     * applications that interact with token contracts will not expect
+     * {decimals} to ever change, and may work incorrectly if it does.
+     */
+    function _setupDecimals(uint8 decimals_) internal virtual {
+        _decimals = decimals_;
+    }
+
+    /**
+     * @dev Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * will be to transferred to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+}
+
+
+// Root file: contracts/BitDAO.sol
+
+pragma solidity >=0.6.5 <0.8.0;
+
+// import '/Users/stone/Desktop/BitDAO/node_modules/@openzeppelin/contracts/math/SafeMath.sol';
+// import '/Users/stone/Desktop/BitDAO/node_modules/@openzeppelin/contracts/utils/Arrays.sol';
+// import '/Users/stone/Desktop/BitDAO/node_modules/@openzeppelin/contracts/utils/Counters.sol';
+// import '/Users/stone/Desktop/BitDAO/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol';
+
+contract BitDAO is ERC20 {
+    using SafeMath for uint256;
+    using Arrays for uint256[];
     using Counters for Counters.Counter;
-    using Timers for Timers.BlockNumber;
 
-    bytes32 public constant BALLOT_TYPEHASH =
-    keccak256('Ballot(uint256 proposalId,uint8 support)');
-    bytes32 private constant _DELEGATION_TYPEHASH =
+    uint256 public MAX_SUPPLY = 1e28; // 1e10 * 1e18
+
+    address public admin;
+
+    address public pendingAdmin;
+
+    mapping(address => address) public delegates;
+
+    struct Checkpoint {
+        uint256 fromBlock;
+        uint256 votes;
+    }
+
+    mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
+
+    mapping(address => uint256) public numCheckpoints;
+
+    bytes32 public constant DOMAIN_TYPEHASH =
+    keccak256('EIP712Domain(string name,uint256 chainId,address verifyingContract)');
+
+    bytes32 public constant DELEGATION_TYPEHASH =
     keccak256('Delegation(address delegatee,uint256 nonce,uint256 expiry)');
-    bytes32 private constant _UNDELEGATION_TYPEHASH =
-    keccak256(
-        'Undelegation(address delegatee,uint256 nonce,uint256 expiry)'
-    );
 
-    enum VoteType {
-        Against,
-        For,
-        Slashing
-    }
+    mapping(address => uint256) public nonces;
 
-    enum ProposalState {
-        Pending,
-        Active,
-        Canceled,
-        Defeated,
-        Succeeded,
-        Queued,
-        Expired,
-        Executed
-    }
-
-    /**
-     * @dev Proposal structure.
-     */
-    struct Proposal {
-        uint256 id;
-        uint256 eta;
+    struct Snapshots {
+        uint256[] ids;
         uint256[] values;
-        uint256[] forVotes;
-        uint256[] againstVotes;
-        uint256[] slashingVotes;
-        bytes32[] roles;
-        bytes32[] actions;
-        bytes32 descriptionHash;
-        Timers.BlockNumber voteStart;
-        Timers.BlockNumber voteEnd;
-        address[] targets;
-        address proposer;
-        bytes[] calldatas;
-        string[] signatures;
-        bool canceled;
-        bool executed;
-        mapping(address => Receipt) receipts;
     }
 
-    /**
-     * @dev Receipt structure.
-     */
-    struct Receipt {
-        bool hasVoted;
-        uint8 support;
-        uint96[] votes;
-    }
+    mapping(address => Snapshots) private _accountBalanceSnapshots;
 
-    IERC20Votes public token;
-    TimelockController private _timelock;
+    Snapshots private _totalSupplySnapshots;
 
-    bytes32[] public rolesList;
-    mapping(uint256 => bytes32) private _timelockIds;
-    mapping(bytes32 => bool) private _roles;
-    mapping(bytes32 => mapping(address => bool)) public votersRoles;
-    mapping(address => mapping(bytes32 => mapping(address => uint256)))
-    public delegations;
-    mapping(address => mapping(bytes32 => uint256)) public delegatees;
-    mapping(address => mapping(bytes32 => uint256)) public delegated;
-    mapping(address => mapping(bytes32 => bytes32)) public actionsRoles;
-    mapping(address => mapping(bytes32 => uint256)) public actionsQuorums;
-    mapping(bytes32 => uint256) public proposalThresholds;
-    mapping(bytes32 => address) public rolesChildrenDAO;
+    Counters.Counter private _currentSnapshotId;
 
-    mapping(uint256 => Proposal) private _proposals;
-    mapping(address => uint256) private _nonces;
+    event Snapshot(uint256 id);
 
-    event ProposalCreated(
-        uint256 proposalId,
-        address proposer,
-        address[] targets,
-        uint256[] values,
-        bytes32[] roles,
-        bytes[] calldatas,
-        string[] signatures,
-        bytes32[] actions,
-        uint256 startBlock,
-        uint256 endBlock,
-        string description
-    );
-    event ProposalCanceled(uint256 proposalId);
-    event ProposalExecuted(uint256 proposalId);
-    event ProposalQueued(uint256 proposalId, uint256 eta);
-    event TimelockChange(address oldTimelock, address newTimelock);
-    event VoteCast(
-        address indexed voter,
-        uint256 proposalId,
-        uint8 support,
-        string reason
-    );
+    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
 
-    /**
-     * @dev Restrict access to governor executing address. Some module might override the _executor function to make
-     * sure this modifier is consistant with the execution model.
-     */
-    modifier onlyGovernance() {
-        require(_msgSender() == _executor(), 'Governor: onlyGovernance');
+    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+
+    event NewPendingAdmin(address indexed oldPendingAdmin, address indexed newPendingAdmin);
+
+    event NewAdmin(address indexed oldAdmin, address indexed newAdmin);
+
+    modifier onlyAdmin {
+        require(msg.sender == admin, 'Caller is not a admin');
         _;
     }
 
-    modifier roleExists(bytes32 role) {
-        require(_roles[role], 'Governance::roleExists: role does not exist');
-        _;
+    constructor(address _admin) ERC20('BitDAO', 'BIT') {
+        admin = _admin;
+        _mint(_admin, MAX_SUPPLY);
     }
 
-    modifier hasRole(bytes32 role, address delegatee) {
-        require(
-            votersRoles[role][delegatee],
-            'Governance::hasRole: delegatee does not have the role'
-        );
-        _;
-    }
-
-    constructor(IERC20Votes token_) EIP712(name(), version()) {
-        token = token_;
-    }
-
-    /**
-     * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
-     * through another contract such as a timelock.
-     */
-    function _executor() internal view virtual returns (address) {
-        return address(this);
-    }
-
-    /**
-     * @dev Function to receive ETH that will be handled by the governor (disabled if executor is a third party contract)
-     */
-    receive() external payable virtual {
-        require(_executor() == address(this));
-    }
-
-    function version() public pure virtual returns (string memory) {
-        return '0.0.1';
-    }
-
-    function name() public pure virtual returns (string memory) {
-        return 'BitDAO';
-    }
-
-    /**
-     * @dev Public accessor to check the address of the timelock
-     */
-    function timelock() public view virtual returns (address) {
-        return address(_timelock);
-    }
-
-    function votingDelay() public pure virtual returns (uint256) {
-        return 1; // 1 block
-    }
-
-    function votingPeriod() public pure virtual returns (uint256) {
-        return 17280; // ~3 days in blocks
-    }
-
-    /**
-     * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
-     * must be proposed, scheduled and executed using the {Governor} workflow.
-     */
-    function updateTimelock(TimelockController newTimelock)
-    external
-    virtual
-    onlyGovernance
-    {
-        _updateTimelock(newTimelock);
-    }
-
-    function _updateTimelock(TimelockController newTimelock) private {
-        emit TimelockChange(address(_timelock), address(newTimelock));
-        _timelock = newTimelock;
-    }
-
-    /**
-     * @dev Public accessor to check the eta of a queued proposal
-     */
-    function proposalEta(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (uint256)
-    {
-        uint256 eta = _timelock.getTimestamp(_timelockIds[proposalId]);
-        return eta == 1 ? 0 : eta; // _DONE_TIMESTAMP (1) should be replaced with a 0 value
-    }
-
-    function hashProposal(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public pure virtual returns (uint256) {
-        return
-        uint256(
-            keccak256(
-                abi.encode(targets, values, calldatas, descriptionHash)
-            )
-        );
-    }
-
-    function propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes32[] memory roles,
-        string[] memory signatures,
-        bytes[] memory calldatas,
-        bytes32[] memory actions,
-        string memory description
-    ) public virtual returns (uint256) {
-        for (uint256 i = 0; i < roles.length; ++i) {
-            require(
-                votersRoles[roles[i]][_msgSender()],
-                'Governance::propose: Proposer must have proposal roles'
-            );
+    function setPendingAdmin(address newPendingAdmin) external returns (bool) {
+        if (msg.sender != admin) {
+            revert('BitDAO:setPendingAdmin:illegal address');
         }
-        require(
-            targets.length == values.length,
-            'Governance::propose: invalid proposal length'
-        );
-        require(
-            targets.length == calldatas.length,
-            'Governance::propose: invalid proposal length'
-        );
-        require(
-            targets.length == actions.length,
-            'Governance::propose: invalid proposal length'
-        );
-        require(targets.length > 0, 'Governance::propose: empty proposal');
+        address oldPendingAdmin = pendingAdmin;
+        pendingAdmin = newPendingAdmin;
 
-        bytes32 descriptionHash = keccak256(bytes(description));
-        uint256 proposalId = hashProposal(
-            targets,
-            values,
-            _encodeCalldata(signatures, calldatas),
-            descriptionHash
-        );
+        emit NewPendingAdmin(oldPendingAdmin, newPendingAdmin);
 
-        Proposal storage proposal = _proposals[proposalId];
-        require(
-            proposal.voteStart.isUnset(),
-            'Governance::propose: proposal already exists'
-        );
-        require(
-            proposal.descriptionHash == bytes32(0),
-            'Governance::propose: proposal already exists'
-        );
-
-        proposal.proposer = _msgSender();
-        proposal.targets = targets;
-        proposal.values = values;
-        proposal.roles = roles;
-        proposal.calldatas = calldatas;
-        proposal.signatures = signatures;
-        proposal.actions = actions;
-        proposal.descriptionHash = descriptionHash;
-
-        uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
-        uint64 deadline = snapshot + votingPeriod().toUint64();
-
-        proposal.voteStart.setDeadline(snapshot);
-        proposal.voteEnd.setDeadline(deadline);
-
-        return proposalId;
+        return true;
     }
 
-    function registerNewRole(bytes32 role) external onlyGovernance {
-        _roles[role] = true;
-        rolesList.push(role);
+    function acceptAdmin() external returns (bool) {
+        if (msg.sender != pendingAdmin || msg.sender == address(0)) {
+            revert('BitDAO:acceptAdmin:illegal address');
+        }
+        address oldAdmin = admin;
+        address oldPendingAdmin = pendingAdmin;
+        admin = pendingAdmin;
+        pendingAdmin = address(0);
+
+        emit NewAdmin(oldAdmin, admin);
+        emit NewPendingAdmin(oldPendingAdmin, pendingAdmin);
+
+        return true;
     }
 
-    function registerNewAction(
-        address target,
-        bytes32 action,
-        bytes32 role,
-        uint256 quorum
-    ) external roleExists(role) onlyGovernance {
-        actionsRoles[target][action] = role;
-        actionsQuorums[target][action] = quorum;
+    function snapshot() external virtual onlyAdmin returns (uint256) {
+        _currentSnapshotId.increment();
+
+        uint256 currentId = _currentSnapshotId.current();
+        emit Snapshot(currentId);
+        return currentId;
     }
 
-    function addNewRoleMember(bytes32 role, address member)
-    external
-    roleExists(role)
-    onlyGovernance
-    {
-        votersRoles[role][member] = true;
+    function balanceOfAt(address account, uint256 snapshotId) public view virtual returns (uint256) {
+        (bool snapshotted, uint256 value) = _valueAt(snapshotId, _accountBalanceSnapshots[account]);
+
+        return snapshotted ? value : balanceOf(account);
     }
 
-    function setProposalThreshold(bytes32 role, uint256 threshold)
-    external
-    roleExists(role)
-    onlyGovernance
-    {
-        proposalThresholds[role] = threshold;
+    function totalSupplyAt(uint256 snapshotId) public view virtual returns (uint256) {
+        (bool snapshotted, uint256 value) = _valueAt(snapshotId, _totalSupplySnapshots);
+
+        return snapshotted ? value : totalSupply();
     }
 
-    function setVotes() external virtual {
-        for (uint256 i = 0; i < rolesList.length; ++i) {
-            delegatees[_msgSender()][rolesList[i]] = token.getCurrentVotes(
-                _msgSender()
-            );
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+        if (from == address(0)) {
+            // mint
+            _updateAccountSnapshot(to);
+            _updateTotalSupplySnapshot();
+        } else if (to == address(0)) {
+            // burn
+            _updateAccountSnapshot(from);
+            _updateTotalSupplySnapshot();
+        } else {
+            // transfer
+            _updateAccountSnapshot(from);
+            _updateAccountSnapshot(to);
         }
     }
 
-    function delegate(
-        bytes32 role,
-        uint256 votes,
-        address delegatee
-    ) external virtual roleExists(role) hasRole(role, delegatee) {
-        _delegate(role, votes, delegatee);
+    function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {
+        require(snapshotId > 0, 'ERC20Snapshot: id is 0');
+        require(snapshotId <= _currentSnapshotId.current(), 'ERC20Snapshot: nonexistent id');
+
+        uint256 index = snapshots.ids.findUpperBound(snapshotId);
+
+        if (index == snapshots.ids.length) {
+            return (false, 0);
+        } else {
+            return (true, snapshots.values[index]);
+        }
+    }
+
+    function _updateAccountSnapshot(address account) private {
+        _updateSnapshot(_accountBalanceSnapshots[account], balanceOf(account));
+    }
+
+    function _updateTotalSupplySnapshot() private {
+        _updateSnapshot(_totalSupplySnapshots, totalSupply());
+    }
+
+    function _updateSnapshot(Snapshots storage snapshots, uint256 currentValue) private {
+        uint256 currentId = _currentSnapshotId.current();
+        if (_lastSnapshotId(snapshots.ids) < currentId) {
+            snapshots.ids.push(currentId);
+            snapshots.values.push(currentValue);
+        }
+    }
+
+    function _lastSnapshotId(uint256[] storage ids) private view returns (uint256) {
+        if (ids.length == 0) {
+            return 0;
+        } else {
+            return ids[ids.length - 1];
+        }
+    }
+
+    function delegate(address delegatee) external {
+        return _delegate(msg.sender, delegatee);
     }
 
     function delegateBySig(
-        bytes32 role,
-        uint256 votes,
         address delegatee,
         uint256 nonce,
         uint256 expiry,
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external virtual roleExists(role) hasRole(role, delegatee) {
-        require(
-            block.timestamp <= expiry,
-            'Governance::delegateBySig: signature expired'
-        );
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        _DELEGATION_TYPEHASH,
-                        role,
-                        delegatee,
-                        nonce,
-                        expiry
-                    )
-                )
-            ),
-            v,
-            r,
-            s
-        );
-        require(
-            nonce == _nonces[signer]++,
-            'Governance::delegateBySig: invalid nonce'
-        );
-        _delegate(role, votes, delegatee);
+    ) external {
+        bytes32 domainSeparator =
+        keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name())), getChainId(), address(this)));
+        bytes32 structHash = keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry));
+        bytes32 digest = keccak256(abi.encodePacked('\x19\x01', domainSeparator, structHash));
+        address signatory = ecrecover(digest, v, r, s);
+        require(signatory != address(0), 'BitDAO::delegateBySig: invalid signature');
+        require(nonce == nonces[signatory]++, 'BitDAO::delegateBySig: invalid nonce');
+        require(block.timestamp <= expiry, 'BitDAO::delegateBySig: signature expired');
+        return _delegate(signatory, delegatee);
     }
 
-    function undelegate(
-        bytes32 role,
-        uint256 votes,
-        address delegatee
-    ) external virtual roleExists(role) hasRole(role, delegatee) {
-        _undelegate(role, votes, delegatee);
+    function getCurrentVotes(address account) external view returns (uint256) {
+        uint256 nCheckpoints = numCheckpoints[account];
+        return nCheckpoints > 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
     }
 
-    function undelegateBySig(
-        bytes32 role,
-        uint256 votes,
-        address delegatee,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external virtual roleExists(role) hasRole(role, delegatee) {
-        require(
-            block.timestamp <= expiry,
-            'Governance::undelegateBySig: signature expired'
-        );
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        _UNDELEGATION_TYPEHASH,
-                        role,
-                        delegatee,
-                        nonce,
-                        expiry
-                    )
-                )
-            ),
-            v,
-            r,
-            s
-        );
-        require(
-            nonce == _nonces[signer]++,
-            'Governance::undelegateBySig: invalid nonce'
-        );
-        _undelegate(role, votes, delegatee);
-    }
+    function getPriorVotes(address account, uint256 blockNumber) public view returns (uint256) {
+        require(blockNumber < block.number, 'BitDAO::getPriorVotes: not yet determined');
 
-    function _delegate(
-        bytes32 role,
-        uint256 votes,
-        address delegatee
-    ) internal virtual {
-        delegatees[_msgSender()][role] -= votes;
-        delegations[_msgSender()][role][delegatee] += votes;
-        delegatees[delegatee][role] += votes;
-    }
-
-    function _undelegate(
-        bytes32 role,
-        uint256 votes,
-        address delegatee
-    ) internal virtual {
-        delegatees[delegatee][role] -= votes;
-        delegations[_msgSender()][role][delegatee] -= votes;
-        delegatees[_msgSender()][role] += votes;
-    }
-
-    function getVotes(address account, bytes32 role)
-    public
-    view
-    virtual
-    returns (uint256)
-    {
-        return delegatees[account][role];
-    }
-
-    /**
-     * @dev See {IGovernorCompatibilityBravo-queue}.
-     */
-    function queue(uint256 proposalId) public virtual {
-        Proposal storage proposal = _proposals[proposalId];
-        queue(
-            proposal.targets,
-            proposal.values,
-            _encodeCalldata(proposal.signatures, proposal.calldatas),
-            proposal.descriptionHash
-        );
-    }
-
-    /**
-     * @dev Function to queue a proposal to the timelock.
-     */
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual returns (uint256) {
-        uint256 proposalId = hashProposal(
-            targets,
-            values,
-            calldatas,
-            descriptionHash
-        );
-
-        require(
-            state(proposalId) == ProposalState.Succeeded,
-            'Governor: proposal not successful'
-        );
-
-        uint256 delay = _timelock.getMinDelay();
-        _timelockIds[proposalId] = _timelock.hashOperationBatch(
-            targets,
-            values,
-            calldatas,
-            0,
-            descriptionHash
-        );
-        _timelock.scheduleBatch(
-            targets,
-            values,
-            calldatas,
-            0,
-            descriptionHash,
-            delay
-        );
-
-        emit ProposalQueued(proposalId, block.timestamp + delay);
-
-        return proposalId;
-    }
-
-    /**
-     * @dev See {IGovernor-execute}.
-     */
-    function execute(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public payable virtual returns (uint256) {
-        uint256 proposalId = hashProposal(
-            targets,
-            values,
-            calldatas,
-            descriptionHash
-        );
-
-        ProposalState status = state(proposalId);
-        require(
-            status == ProposalState.Succeeded || status == ProposalState.Queued,
-            'Governor: proposal not successful'
-        );
-        _proposals[proposalId].executed = true;
-
-        emit ProposalExecuted(proposalId);
-
-        _execute(proposalId, targets, values, calldatas, descriptionHash);
-
-        return proposalId;
-    }
-
-    /**
-     * @dev Internal execution mechanism. Can be overriden to implement different execution mechanism
-     */
-    function _execute(
-        uint256, /* proposalId */
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual {
-        _timelock.executeBatch{value: msg.value}(
-            targets,
-            values,
-            calldatas,
-            0,
-            descriptionHash
-        );
-    }
-
-    /**
-     * @dev See {IGovernorCompatibilityBravo-cancel}.
-     */
-    function cancel(uint256 proposalId) public virtual {
-        Proposal storage proposal = _proposals[proposalId];
-
-        require(
-            _msgSender() == proposal.proposer,
-            'Governance::cancel: sender must be the proposer'
-        );
-        for (uint256 i = 0; i < proposal.roles.length; ++i) {
-            require(
-                getVotes(proposal.proposer, proposal.roles[i]) <
-                proposalThresholds[proposal.roles[i]],
-                'Governance::cancel: proposer above threshold'
-            );
+        uint256 nCheckpoints = numCheckpoints[account];
+        if (nCheckpoints == 0) {
+            return 0;
         }
 
-        _cancel(
-            proposal.targets,
-            proposal.values,
-            _encodeCalldata(proposal.signatures, proposal.calldatas),
-            proposal.descriptionHash
-        );
-    }
-
-    /**
-     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
-     * canceled to allow distinguishing it from executed proposals.
-     *
-     * Emits a {IGovernor-ProposalCanceled} event.
-     */
-    function _cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(
-            targets,
-            values,
-            calldatas,
-            descriptionHash
-        );
-        ProposalState status = state(proposalId);
-
-        require(
-            status != ProposalState.Canceled &&
-            status != ProposalState.Expired &&
-            status != ProposalState.Executed,
-            'Governance::_cancel: proposal not active'
-        );
-        _proposals[proposalId].canceled = true;
-
-        emit ProposalCanceled(proposalId);
-
-        if (_timelockIds[proposalId] != 0) {
-            _timelock.cancel(_timelockIds[proposalId]);
-            delete _timelockIds[proposalId];
+        if (checkpoints[account][nCheckpoints - 1].fromBlock <= blockNumber) {
+            return checkpoints[account][nCheckpoints - 1].votes;
         }
 
-        return proposalId;
-    }
-
-    /**
-     * @dev Encodes calldatas with optional function signature.
-     */
-    function _encodeCalldata(
-        string[] memory signatures,
-        bytes[] memory calldatas
-    ) private pure returns (bytes[] memory) {
-        bytes[] memory fullcalldatas = new bytes[](calldatas.length);
-
-        for (uint256 i = 0; i < signatures.length; ++i) {
-            fullcalldatas[i] = bytes(signatures[i]).length == 0
-            ? calldatas[i]
-            : abi.encodeWithSignature(signatures[i], calldatas[i]);
+        if (checkpoints[account][0].fromBlock > blockNumber) {
+            return 0;
         }
 
-        return fullcalldatas;
-    }
-
-    /**
-     * @dev See {IGovernor-state}.
-     */
-    function state(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (ProposalState)
-    {
-        Proposal storage proposal = _proposals[proposalId];
-
-        if (proposal.executed) {
-            return ProposalState.Executed;
-        } else if (proposal.canceled) {
-            return ProposalState.Canceled;
-        } else if (proposal.voteStart.isPending()) {
-            return ProposalState.Pending;
-        } else if (proposal.voteEnd.isPending()) {
-            return ProposalState.Active;
-        } else if (proposal.voteEnd.isExpired()) {
-            if (_quorumReached(proposalId) && _voteSucceeded(proposalId)) {
-                bytes32 queueid = _timelockIds[proposalId];
-                if (queueid == bytes32(0)) {
-                    return ProposalState.Succeeded;
-                } else if (_timelock.isOperationDone(queueid)) {
-                    return ProposalState.Executed;
-                } else {
-                    return ProposalState.Queued;
-                }
+        uint256 lower = 0;
+        uint256 upper = nCheckpoints - 1;
+        while (upper > lower) {
+            uint256 center = upper - (upper - lower) / 2;
+            Checkpoint memory cp = checkpoints[account][center];
+            if (cp.fromBlock == blockNumber) {
+                return cp.votes;
+            } else if (cp.fromBlock < blockNumber) {
+                lower = center;
             } else {
-                return ProposalState.Defeated;
+                upper = center - 1;
             }
+        }
+        return checkpoints[account][lower].votes;
+    }
+
+    function _delegate(address delegator, address delegatee) internal {
+        address currentDelegate = delegates[delegator];
+        uint256 delegatorBalance = balanceOf(delegator);
+        delegates[delegator] = delegatee;
+
+        emit DelegateChanged(delegator, currentDelegate, delegatee);
+
+        _moveDelegates(currentDelegate, delegatee, delegatorBalance);
+    }
+
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual override {
+        super._transfer(sender, recipient, amount);
+        _moveDelegates(delegates[sender], delegates[recipient], amount);
+    }
+
+    function _moveDelegates(
+        address srcRep,
+        address dstRep,
+        uint256 amount
+    ) internal {
+        if (srcRep != dstRep && amount > 0) {
+            if (srcRep != address(0)) {
+                uint256 srcRepNum = numCheckpoints[srcRep];
+                uint256 srcRepOld = srcRepNum > 0 ? checkpoints[srcRep][srcRepNum - 1].votes : 0;
+                uint256 srcRepNew = srcRepOld.sub(amount);
+                _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
+            }
+
+            if (dstRep != address(0)) {
+                uint256 dstRepNum = numCheckpoints[dstRep];
+                uint256 dstRepOld = dstRepNum > 0 ? checkpoints[dstRep][dstRepNum - 1].votes : 0;
+                uint256 dstRepNew = dstRepOld.add(amount);
+                _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
+            }
+        }
+    }
+
+    function _writeCheckpoint(
+        address delegatee,
+        uint256 nCheckpoints,
+        uint256 oldVotes,
+        uint256 newVotes
+    ) internal {
+        uint256 blockNumber = safe32(block.number, 'BitDAO::_writeCheckpoint: block number exceeds 32 bits');
+
+        if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
+            checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;
         } else {
-            revert('Governance::state: unknown proposal id');
+            checkpoints[delegatee][nCheckpoints] = Checkpoint(blockNumber, newVotes);
+            numCheckpoints[delegatee] = nCheckpoints + 1;
         }
+
+        emit DelegateVotesChanged(delegatee, oldVotes, newVotes);
     }
 
-    /**
-     * @dev See {IGovernor-proposalSnapshot}.
-     */
-    function proposalSnapshot(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (uint256)
-    {
-        return _proposals[proposalId].voteStart.getDeadline();
+    function safe32(uint256 n, string memory errorMessage) internal pure returns (uint256) {
+        require(n < 2**32, errorMessage);
+        return uint256(n);
     }
 
-    /**
-     * @dev See {IGovernor-proposalDeadline}.
-     */
-    function proposalDeadline(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (uint256)
-    {
-        return _proposals[proposalId].voteEnd.getDeadline();
-    }
-
-    /**
-     * @dev See {IGovernorCompatibilityBravo-proposals}.
-     */
-    function proposals(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (
-        uint256 id,
-        address proposer,
-        uint256 eta,
-        uint256 startBlock,
-        uint256 endBlock,
-        uint256[] memory forVotes,
-        uint256[] memory againstVotes,
-        uint256[] memory slashingVotes,
-        bool canceled,
-        bool executed
-    )
-    {
-        id = proposalId;
-        eta = proposalEta(proposalId);
-        startBlock = proposalSnapshot(proposalId);
-        endBlock = proposalDeadline(proposalId);
-
-        Proposal storage proposal = _proposals[proposalId];
-        proposer = proposal.proposer;
-        forVotes = proposal.forVotes;
-        againstVotes = proposal.againstVotes;
-        slashingVotes = proposal.slashingVotes;
-
-        ProposalState status = state(proposalId);
-        canceled = status == ProposalState.Canceled;
-        executed = status == ProposalState.Executed;
-    }
-
-    /**
-     * @dev See {IGovernorCompatibilityBravo-getActions}.
-     */
-    function getActions(uint256 proposalId)
-    public
-    view
-    virtual
-    returns (
-        address[] memory targets,
-        uint256[] memory values,
-        bytes32[] memory roles,
-        string[] memory signatures,
-        bytes[] memory calldatas,
-        bytes32[] memory actions
-    )
-    {
-        Proposal storage proposal = _proposals[proposalId];
-        return (
-        proposal.targets,
-        proposal.values,
-        proposal.roles,
-        proposal.signatures,
-        proposal.calldatas,
-        proposal.actions
-        );
-    }
-
-    /**
-     * @dev See {IGovernorCompatibilityBravo-getReceipt}.
-     */
-    function getReceipt(uint256 proposalId, address voter)
-    public
-    view
-    virtual
-    returns (Receipt memory)
-    {
-        return _proposals[proposalId].receipts[voter];
-    }
-
-    // ==================================================== Voting ====================================================
-
-    function hasVoted(uint256 proposalId, address account)
-    public
-    view
-    virtual
-    returns (bool)
-    {
-        return _proposals[proposalId].receipts[account].hasVoted;
-    }
-
-    function _quorumReached(uint256 proposalId)
-    internal
-    view
-    virtual
-    returns (bool)
-    {
-        Proposal storage proposal = _proposals[proposalId];
-        bool reached = true;
-        for (uint256 i = 0; i < proposal.actions.length; ++i) {
-            if (
-                actionsQuorums[proposal.targets[i]][proposal.actions[i]] >
-                proposal.forVotes[i]
-            ) {
-                reached = false;
-            }
+    function getChainId() internal pure returns (uint256) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
         }
-        return reached;
-    }
-
-    function _voteSucceeded(uint256 proposalId)
-    internal
-    view
-    virtual
-    returns (bool)
-    {
-        Proposal storage proposal = _proposals[proposalId];
-        bool allFor = true;
-        for (uint256 i = 0; i < proposal.roles.length; ++i) {
-            if (
-                proposal.forVotes[i] <= proposal.againstVotes[i] ||
-                proposal.forVotes[i] <= proposal.slashingVotes[i]
-            ) {
-                allFor = false;
-            }
-        }
-        return allFor;
-    }
-
-    /**
-     * @dev See {IGovernor-castVote}.
-     */
-    function castVote(uint256 proposalId, uint8 support) public virtual {
-        address voter = _msgSender();
-        _castVote(proposalId, voter, support, '');
-    }
-
-    /**
-     * @dev See {IGovernor-castVoteWithReason}.
-     */
-    function castVoteWithReason(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason
-    ) public virtual {
-        address voter = _msgSender();
-        _castVote(proposalId, voter, support, reason);
-    }
-
-    /**
-     * @dev See {IGovernor-castVoteBySig}.
-     */
-    function castVoteBySig(
-        uint256 proposalId,
-        uint8 support,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual {
-        address voter = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))
-            ),
-            v,
-            r,
-            s
-        );
-        _castVote(proposalId, voter, support, '');
-    }
-
-    /**
-     * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
-     * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
-     *
-     * Emits a {IGovernor-VoteCast} event.
-     */
-    function _castVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        string memory reason
-    ) internal virtual {
-        require(
-            state(proposalId) == ProposalState.Active,
-            'Governor::_castVote: vote not currently active'
-        );
-
-        _countVote(proposalId, account, support);
-
-        emit VoteCast(account, proposalId, support, reason);
-    }
-
-    function _countVote(
-        uint256 proposalId,
-        address account,
-        uint8 support
-    ) internal virtual {
-        Proposal storage proposal = _proposals[proposalId];
-        Receipt storage receipt = proposal.receipts[account];
-
-        require(!receipt.hasVoted, 'Governance::_countVote: vote already cast');
-        receipt.hasVoted = true;
-        receipt.support = support;
-        receipt.votes = new uint96[](proposal.roles.length);
-
-        for (uint256 i = 0; i < proposal.roles.length; ++i) {
-            if (votersRoles[proposal.roles[i]][account]) {
-                uint256 weight = getVotes(account, proposal.roles[i]);
-                receipt.votes[i] = SafeCast.toUint96(weight);
-                if (support == uint8(VoteType.Against)) {
-                    proposal.againstVotes[i] += weight;
-                } else if (support == uint8(VoteType.For)) {
-                    proposal.forVotes[i] += weight;
-                } else if (support == uint8(VoteType.Slashing)) {
-                    proposal.slashingVotes[i] += weight;
-                } else {
-                    revert('Governance::_countVote: invalid vote type');
-                }
-            }
-        }
+        return chainId;
     }
 }

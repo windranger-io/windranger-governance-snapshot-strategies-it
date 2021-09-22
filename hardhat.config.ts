@@ -39,5 +39,24 @@ export default {
       loggingEnabled: true
     }
   },
-  solidity: '0.8.4'
+  solidity: {
+    compilers: [
+      {
+        version: '0.7.6'
+      },
+      {
+        version: '0.8.4'
+      }
+    ]
+  }
 }
+
+// solidity: {
+//   version: "0.8.4",
+//   settings: {
+//     optimizer: {
+//       enabled: true,
+//       runs: 200
+//     }
+//   }
+// }

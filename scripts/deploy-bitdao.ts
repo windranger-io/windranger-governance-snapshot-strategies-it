@@ -1,13 +1,15 @@
 import {run, ethers} from 'hardhat'
 import {log} from '../config/logging'
-import {deployMulticall} from './deploy'
+import {deployBitDao} from './deploy'
 
 async function main() {
   await run('compile')
 
-  const receipt = await deployMulticall()
+  const signers = await ethers.getSigners()
+  const admin = signers[0].address
+  const receipt = await deployBitDao(admin)
 
-  log.info('Deployed Multicall contract, receipt: %s', receipt)
+  log.info('Deployed ERC20 contract, receipt: %s', receipt)
 }
 
 main()

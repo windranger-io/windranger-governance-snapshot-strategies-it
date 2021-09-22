@@ -1,17 +1,15 @@
 import {run, ethers} from 'hardhat'
 import {log} from '../config/logging'
+import {deployGovernance} from './deploy'
 
 async function main() {
   await run('compile')
 
-  const Governance = await ethers.getContractFactory('Governance')
-  const signers = await ethers.getSigners()
-  const admin = signers[0].address
+  const erc20 = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
 
-  log.info('Admin @ %s', admin)
-  const aggregate = await Governance.deploy(admin)
+  const receipt = await deployGovernance(erc20)
 
-  log.info('Deployed Governance contract @ %s', aggregate.address)
+  log.info('Deployed Governance contract, receipt: %s', receipt)
 }
 
 main()
