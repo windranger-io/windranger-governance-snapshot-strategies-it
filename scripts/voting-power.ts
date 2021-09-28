@@ -40,9 +40,7 @@ async function main() {
 
   const delegatedVotes = BigNumber.from(556632)
 
-  //TODO both these lines fail, but in different ways
-  await governance.setVotingPowerSingleAdmin(admin.address, delegatedVotes)
-  //  await governance.delegate(treasuryRole, delegatedVotes, admin.address)
+  await governance.delegate(treasuryRole, delegatedVotes, admin.address)
 
   logVotes(governance, admin.address, treasuryRole)
 }
