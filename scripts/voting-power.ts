@@ -1,19 +1,22 @@
 import {run, ethers} from 'hardhat'
 import {log} from '../config/logging'
-import {Contract} from 'ethers'
+import {BigNumber, Contract} from 'ethers'
 
 const erc20Abi = [
   'function balanceOf(address account) external view returns (uint256)'
 ]
 const governanceAbi = [
   'function getVotes(address account, bytes32 role) public view returns (uint256)',
-  'function delegate(bytes32 role, uint256 votes, address delegatee) external',
-  'function registerNewRole(bytes32 role) external'
+  'function setVotingPowerSingleAdmin(address voter, uint256 votingPower) external',
+  'function delegate(bytes32 role, uint256 votes, address delegatee) external'
 ]
 
-const erc20Address = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e'
-const governanceAddress = '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0'
-const roleTitle = 'Treasury'
+const erc20Address = '0x959922be3caee4b8cd9a407cc3ac1c251c2007b1'
+const governanceAddress = '0x68b1d87f95878fe05b998f19b66f4baba5de1aed'
+
+const treasuryRole = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes('TREASURY_ROLE')
+)
 
 async function main() {
   await run('compile')
@@ -33,17 +36,15 @@ async function main() {
 
   log.info('%s has balanceOf %s', admin.address, balance)
 
-  const role = ethers.utils.formatBytes32String(roleTitle)
+  logVotes(governance, admin.address, treasuryRole)
 
-  //TODO uncertain how to send this transaction as the governance contract
-  governance.registerNewRole(role)
+  const delegatedVotes = BigNumber.from(556632)
 
-  logVotes(governance, admin.address, role)
+  //TODO both these lines fail, but in different ways
+  await governance.setVotingPowerSingleAdmin(admin.address, delegatedVotes)
+  //  await governance.delegate(treasuryRole, delegatedVotes, admin.address)
 
-  const delegatedVotes = 556632
-  await governance.delegate(role, delegatedVotes, admin.address)
-
-  logVotes(governance, admin.address, role)
+  logVotes(governance, admin.address, treasuryRole)
 }
 
 async function logVotes(
@@ -52,7 +53,7 @@ async function logVotes(
   role: string
 ) {
   const votingPower = await governance.getVotes(adminAddress, role)
-  log.info('%s starting votes: %s', adminAddress, votingPower)
+  log.info('%s role: %s, votes: %s', adminAddress, role, votingPower)
 }
 
 main()

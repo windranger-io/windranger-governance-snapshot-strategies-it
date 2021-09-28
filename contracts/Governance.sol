@@ -13,6 +13,7 @@ import '@openzeppelin/contracts/utils/Timers.sol';
 import '@openzeppelin/contracts/utils/math/SafeCast.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/governance/TimelockController.sol';
+import 'hardhat/console.sol';
 
 // BitDAO token contract interface.
 interface IERC20Votes is IERC20 {
