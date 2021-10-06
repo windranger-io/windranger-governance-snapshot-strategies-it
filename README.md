@@ -85,3 +85,17 @@ To have the JSON logging output into a more human-readable form, pipe the stdout
 ```shell
 npx hardhat accounts | npx bunyan
 ```
+
+### Local Node Setup
+```shell
+npx hardhat node
+
+npx hardhat run ./scripts/deploy-all.ts --network local
+```
+Ensure the `erc20Address` (BitDAO) and `governanceAddress` match the deployed contract addresses, then:
+```shell
+npx hardhat run ./scripts/vote-by-role.ts --network local
+```
+```shell
+npx hardhat run ./scripts/vote-open.ts --network local
+```
