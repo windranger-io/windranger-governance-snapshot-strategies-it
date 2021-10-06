@@ -1,6 +1,11 @@
 import {run, ethers} from 'hardhat'
 import {log} from '../config/logging'
-import {deployBitDao, deployMulticall, deployGovernance} from './deploy'
+import {
+  deployBitDao,
+  deployMulticall,
+  deployGovernance,
+  deployTimeLockController
+} from './deploy'
 
 async function main() {
   await run('compile')
@@ -12,7 +17,14 @@ async function main() {
   const bitDaoAddress = bitDaoReceipt.contractAddress
   log.info('BitDAO @ %s', bitDaoAddress)
 
-  const governanceReceipt = await deployGovernance(bitDaoAddress)
+  const timelockReceipt = await deployTimeLockController(admin)
+  const timelockAddress = timelockReceipt.contractAddress
+  log.info('Timelock @ %s', timelockAddress)
+
+  const governanceReceipt = await deployGovernance(
+    bitDaoAddress,
+    timelockAddress
+  )
   const governanceAddress = governanceReceipt.contractAddress
   log.info('Governance @ %s', governanceAddress)
 
