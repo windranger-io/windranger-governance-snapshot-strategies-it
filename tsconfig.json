@@ -19,12 +19,6 @@
     "forceConsistentCasingInFileNames": true
   },
   "files": ["./hardhat.config.ts"],
-  "include": [
-    "./config/**/*.ts",
-    "./scripts/**/*.ts",
-    "./test/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./config/**/*.ts", "./scripts/**/*.ts", "./test/**/*.ts"],
+  "exclude": ["node_modules"]
 }
