@@ -51,15 +51,18 @@
     "ts-node": "^10.2.1",
     "typechain": "^5.1.2",
     "typescript": "^4.4.2",
-    "windranger-governance":"windranger-io/governance#88c9d58"
+    "windranger-governance": "windranger-io/governance#88c9d58"
   },
   "dependencies": {
     "bunyan": "^1.8.15"
   },
   "lint-staged": {
+    "*": [
+      "npm run format"
+    ],
     "*.ts": [
       "npm run format",
-      "npm run lint --fix"
+      "npm run lint -- --fix"
     ]
   }
 }

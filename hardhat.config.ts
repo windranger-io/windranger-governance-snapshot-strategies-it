@@ -30,7 +30,7 @@ export default {
     hardhat: {
       chainId: 33133,
       allowUnlimitedContractSize: true,
-      loggingEnabled: true
+      loggingEnabled: false
     },
     local: {
       url: 'http://localhost:8545',
@@ -56,13 +56,3 @@ export default {
     ]
   }
 }
-
-// solidity: {
-//   version: "0.8.4",
-//   settings: {
-//     optimizer: {
-//       enabled: true,
-//       runs: 200
-//     }
-//   }
-// }
