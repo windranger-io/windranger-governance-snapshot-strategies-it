@@ -8,7 +8,6 @@ import {ethers} from 'hardhat'
 import {before} from 'mocha'
 import {solidity} from 'ethereum-waffle'
 import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
-import {getAddress} from 'ethers/lib/utils'
 import {BigNumber} from 'ethers'
 
 // Wires up Waffle with Chai
