@@ -9,6 +9,7 @@ on:
 jobs:
   Run-Tests:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -18,8 +19,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build application
         run: npm run build
