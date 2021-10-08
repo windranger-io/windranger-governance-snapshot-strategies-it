@@ -13,7 +13,7 @@ import {BigNumber} from 'ethers'
 // Wires up Waffle with Chai
 chai.use(solidity)
 
-const TEN_OCTILLIAN = 10000000000000000000000000000n
+const tenOctillian = 10000000000000000000000000000n
 const treasuryRole = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes('TREASURY_ROLE')
 )
@@ -27,7 +27,7 @@ describe('Single token holder (Admin)', () => {
   })
 
   it('full power in an open vote', async () => {
-    expect(await governance['getVotes(address)'](admin)).equals(TEN_OCTILLIAN)
+    expect(await governance['getVotes(address)'](admin)).equals(tenOctillian)
   })
 
   it('assigned vote power in an role vote', async () => {
