@@ -2,7 +2,7 @@ import {TransactionReceipt} from '@ethersproject/abstract-provider/src.ts/index'
 import {ethers} from 'hardhat'
 
 export async function deployBitDao(admin: string): Promise<TransactionReceipt> {
-  const erc20Factory = await ethers.getContractFactory('BitDAO')
+  const erc20Factory = await ethers.getContractFactory('BitToken')
   const erc20 = await erc20Factory.deploy(admin)
   return erc20.deployTransaction.wait()
 }
