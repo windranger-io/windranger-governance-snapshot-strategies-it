@@ -51,7 +51,8 @@
     "ts-node": "^10.2.1",
     "typechain": "^5.1.2",
     "typescript": "^4.4.2",
-    "windranger-governance": "windranger-io/governance#88c9d58"
+    "windranger-governance": "windranger-io/governance#88c9d58",
+    "windranger-snapshot": "CjHare/snapshot-strategies#bitdao-strategies"
   },
   "dependencies": {
     "bunyan": "^1.8.15"
