@@ -26,6 +26,7 @@ contract Multicall {
       (bool success, bytes memory ret) = calls[i].target.call(
         calls[i].callData
       );
+
       require(success);
       returnData[i] = ret;
     }

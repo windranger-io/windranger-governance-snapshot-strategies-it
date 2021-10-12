@@ -15,7 +15,7 @@ import {
   WindRangerGovernance
 } from '../typechain'
 import {BigNumber} from 'ethers'
-import {Example, retrieveScores} from './snapshot/index.spec'
+import {Example, callGetScores} from './snapshot/index.spec'
 import * as Assert from 'assert'
 
 // Wires up Waffle with Chai
@@ -39,7 +39,7 @@ describe('Test Strategy Role Voting', () => {
   })
 
   it('Strategy should run without any errors', async () => {
-    scores = await retrieveScores(roleVotingExample)
+    scores = await callGetScores(roleVotingExample)
   }).timeout(10000)
 
   it('Should return an array of object with addresses', () => {
