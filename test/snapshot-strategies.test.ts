@@ -1,5 +1,4 @@
 // Start - Support direct Mocha run & debug
-import hre from 'hardhat'
 import '@nomiclabs/hardhat-ethers'
 // End - Support direct Mocha run & debug
 
@@ -7,7 +6,12 @@ import chai, {expect} from 'chai'
 import {ethers} from 'hardhat'
 import {before} from 'mocha'
 import {solidity} from 'ethereum-waffle'
-import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
+import {
+  BitToken,
+  Multicall,
+  TimelockController,
+  WindRangerGovernance
+} from '../typechain'
 import {BigNumber} from 'ethers'
 import {Example, retrieveScores} from './snapshot/index.spec'
 import example from 'windranger-snapshot/dist/strategies/bitdao-vote-by-role/examples.json'
@@ -15,9 +19,10 @@ import example from 'windranger-snapshot/dist/strategies/bitdao-vote-by-role/exa
 // Wires up Waffle with Chai
 chai.use(solidity)
 
-//TODO still need to patch snapshot.js networks file for the multicall contract address
-
+//TODO still need to patch snapshot.js networks file for the multicall contract address, which is not know until deploy
 const roleVotingExample: Example = example as unknown as Example
+
+//TODO feed in the multicall address
 
 describe('Test Strategy Role Voting', () => {
   before(async () => {
@@ -95,4 +100,10 @@ async function deployGovernance(
     await factory.deploy(token.address, timeLock.address)
   )
   return governance.deployed()
+}
+
+async function deployMultiCall(): Promise<Multicall> {
+  const factory = await ethers.getContractFactory('Multicall')
+  const multi = <Multicall>await factory.deploy()
+  return multi.deployed()
 }
