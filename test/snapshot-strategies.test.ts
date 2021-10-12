@@ -115,10 +115,11 @@ async function deployMultiCall(): Promise<Multicall> {
 }
 
 function exampleJson(strategy: string, votingContract: string): Example {
-  const example = {
+  //TODO replace addresses with the ten default signers
+  return {
     network: '1',
     strategy: {
-      name: 'bitdao-vote-by-role',
+      name: strategy,
       params: {
         address: votingContract,
         symbol: 'BIT',
@@ -161,8 +162,6 @@ function exampleJson(strategy: string, votingContract: string): Example {
     Assert.fail('Unable to load the example JSON: ' + jsonFile + '; ' + error)
   }
   */
-
-  return example
 }
 
 //TODO use the correct chain id
