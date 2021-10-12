@@ -21,15 +21,15 @@ import * as Assert from 'assert'
 // Wires up Waffle with Chai
 chai.use(solidity)
 
+//TODO changes to snapshot.js on node_modules - need npm post install patch
+
 const roleVotingExample = loadExampleJson('bitdao-vote-by-role')
+//const roleVotingExample = loadExampleJson('erc20-balance-of')
 
 describe('Test Strategy Role Voting', () => {
   before(async () => {
     multiCall = await deployMultiCall()
-
-    //TODO setup the multicall address (snapshot.js)
-    //TODO setup the network (snapshot.js)
-
+    writeNetworksJson(multiCall)
     admin = await signer(0)
     token = await deployToken(admin)
     timeLock = await deployTimeLock(admin)
@@ -127,8 +127,33 @@ function loadExampleJson(strategy: string): Example {
       'Expecting Example to be an array of length one'
     )
 
+    //TODO temp - replace with commented out code
+    const ex = json[0]
+    ex.snapshot = 5
+    return ex
+
     return json[0] as Example
   } catch (error) {
     Assert.fail('Unable to load the example JSON: ' + jsonFile + '; ' + error)
+  }
+}
+
+//TODO use the correct chain id
+//TODO grab the id from the example
+function writeNetworksJson(contract: Multicall): void {
+  const jsonFile = './node_modules/@snapshot-labs/snapshot.js/src/networks.json'
+  const networks = {
+    '1': {
+      key: '1',
+      chainId: 33133,
+      multicall: contract.address
+    }
+  }
+
+  try {
+    const data = JSON.stringify(networks, null, 4)
+    fs.writeFileSync(jsonFile, data, 'utf8')
+  } catch (err) {
+    Assert.fail(`Error writing file: ${err}`)
   }
 }
