@@ -58,9 +58,6 @@
     "bunyan": "^1.8.15"
   },
   "lint-staged": {
-    "!*.ts": [
-      "npm run format"
-    ],
     "*.ts": [
       "npm run lint -- --fix"
     ]
