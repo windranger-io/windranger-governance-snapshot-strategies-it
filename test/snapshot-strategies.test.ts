@@ -1,7 +1,9 @@
 // Start - Support direct Mocha run & debug
+import 'hardhat'
 import '@nomiclabs/hardhat-ethers'
 // End - Support direct Mocha run & debug
 
+import fs from 'fs'
 import chai, {expect} from 'chai'
 import {ethers} from 'hardhat'
 import {before} from 'mocha'
@@ -14,18 +16,20 @@ import {
 } from '../typechain'
 import {BigNumber} from 'ethers'
 import {Example, retrieveScores} from './snapshot/index.spec'
-import example from 'windranger-snapshot/dist/strategies/bitdao-vote-by-role/examples.json'
+import * as Assert from 'assert'
 
 // Wires up Waffle with Chai
 chai.use(solidity)
 
-//TODO still need to patch snapshot.js networks file for the multicall contract address, which is not know until deploy
-const roleVotingExample: Example = example as unknown as Example
-
-//TODO feed in the multicall address
+const roleVotingExample = loadExampleJson('bitdao-vote-by-role')
 
 describe('Test Strategy Role Voting', () => {
   before(async () => {
+    multiCall = await deployMultiCall()
+
+    //TODO setup the multicall address (snapshot.js)
+    //TODO setup the network (snapshot.js)
+
     admin = await signer(0)
     token = await deployToken(admin)
     timeLock = await deployTimeLock(admin)
@@ -67,6 +71,7 @@ describe('Test Strategy Role Voting', () => {
   let token: BitToken
   let timeLock: TimelockController
   let governance: WindRangerGovernance
+  let multiCall: Multicall
 })
 
 async function signer(index: number): Promise<string> {
@@ -106,4 +111,24 @@ async function deployMultiCall(): Promise<Multicall> {
   const factory = await ethers.getContractFactory('Multicall')
   const multi = <Multicall>await factory.deploy()
   return multi.deployed()
+}
+
+function loadExampleJson(strategy: string): Example {
+  const jsonFile =
+    './node_modules/windranger-snapshot/dist/strategies/' +
+    strategy +
+    '/examples.json'
+  try {
+    const data = fs.readFileSync(jsonFile, 'utf8')
+
+    const json = JSON.parse(data)
+    Assert.ok(
+      json.length == 1,
+      'Expecting Example to be an array of length one'
+    )
+
+    return json[0] as Example
+  } catch (error) {
+    Assert.fail('Unable to load the example JSON: ' + jsonFile + '; ' + error)
+  }
 }

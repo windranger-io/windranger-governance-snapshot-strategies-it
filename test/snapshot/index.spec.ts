@@ -1,8 +1,4 @@
-// Start - Support direct Mocha run & debug
 import hre from 'hardhat'
-import '@nomiclabs/hardhat-ethers'
-// End - Support direct Mocha run & debug
-
 import snapshot from 'windranger-snapshot'
 import {log} from '../../config/logging'
 
