@@ -1,3 +1,6 @@
+# Project specific
+snapshot.networks.json
+
 # Hardhat
 artifacts
 cache

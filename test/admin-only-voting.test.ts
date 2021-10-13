@@ -7,6 +7,12 @@ import chai, {expect} from 'chai'
 import {ethers} from 'hardhat'
 import {before} from 'mocha'
 import {solidity} from 'ethereum-waffle'
+import {
+  deployGovernance,
+  deployTimeLock,
+  deployToken,
+  signer
+} from './contracts'
 import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
 import {BigNumber} from 'ethers'
 
@@ -20,7 +26,7 @@ const treasuryRole = ethers.utils.keccak256(
 
 describe('Single token holder (Admin)', () => {
   before(async () => {
-    admin = await signer(0)
+    admin = (await signer(0)).address
     token = await deployToken(admin)
     timeLock = await deployTimeLock(admin)
     governance = await deployGovernance(token, timeLock)
@@ -48,36 +54,3 @@ describe('Single token holder (Admin)', () => {
   let timeLock: TimelockController
   let governance: WindRangerGovernance
 })
-
-async function signer(index: number): Promise<string> {
-  const signers = await ethers.getSigners()
-  expect(signers.length).is.greaterThan(index)
-  return signers[index].address
-}
-
-async function deployToken(creatorAddress: string): Promise<BitToken> {
-  const factory = await ethers.getContractFactory('BitDAO')
-  const dao = <BitToken>await factory.deploy(creatorAddress)
-  return dao.deployed()
-}
-
-async function deployTimeLock(
-  creatorAddress: string
-): Promise<TimelockController> {
-  const factory = await ethers.getContractFactory('TimelockController')
-  const lock = <TimelockController>(
-    await factory.deploy(1, [creatorAddress], [creatorAddress])
-  )
-  return lock.deployed()
-}
-
-async function deployGovernance(
-  token: BitToken,
-  timeLock: TimelockController
-): Promise<WindRangerGovernance> {
-  const factory = await ethers.getContractFactory('WindRangerGovernance')
-  const governance = <WindRangerGovernance>(
-    await factory.deploy(token.address, timeLock.address)
-  )
-  return governance.deployed()
-}

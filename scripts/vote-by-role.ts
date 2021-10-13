@@ -1,4 +1,4 @@
-import {run, ethers} from 'hardhat'
+import {ethers} from 'hardhat'
 import {log} from '../config/logging'
 import {BigNumber} from 'ethers'
 

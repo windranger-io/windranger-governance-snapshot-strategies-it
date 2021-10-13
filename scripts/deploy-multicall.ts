@@ -1,4 +1,4 @@
-import {run, ethers} from 'hardhat'
+import {run} from 'hardhat'
 import {log} from '../config/logging'
 import {deployMulticall} from './deploy'
 
