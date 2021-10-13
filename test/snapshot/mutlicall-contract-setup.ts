@@ -7,26 +7,9 @@ import Assert from 'assert'
 import {Multicall} from '../../typechain'
 import fs from 'fs'
 import {ethers} from 'hardhat'
-import {log} from '../../config/logging'
 
-networksJson()
-
-/*
-function sleep(milliseconds: number) {
-  const date = Date.now()
-  let currentDate = null
-  do {
-    currentDate = Date.now()
-  } while (currentDate - date < milliseconds)
-}
-
-let count = 4
-while (!proceed && count > 0) {
-  log.info('sleep')
-  sleep(1000)
-  count--
-}
-*/
+// Snapshot networks.json must be written before snapshot.js.cis.js top level
+writeNetworksJson()
 
 /**
  * Installs the Multicall contract used by Snapshot.js to connect to the HardHat
@@ -37,7 +20,7 @@ while (!proceed && count > 0) {
 export async function multiCallForSnapshot(): Promise<void> {
   try {
     const multiCall = await deployMultiCall()
-    writeNetworksJson(multiCall)
+    writeDynamicNetworksJson(multiCall)
   } catch (error) {
     Assert.fail(
       `Error creating test file to use as Snapshot.js networks.json: ${error}`
@@ -48,7 +31,7 @@ export async function multiCallForSnapshot(): Promise<void> {
 /**
  * Guessing the vaules for the top level init of Snapshot.js
  */
-function networksJson(): void {
+function writeNetworksJson(): void {
   const jsonFile = './snapshot.networks.json'
   const networks = {
     '1': {
@@ -69,7 +52,7 @@ function networksJson(): void {
 //TODO check the existing contexts - ensure they match, chainId, multicall address
 //TODO use the correct chain id
 //TODO grab the id from the example
-function writeNetworksJson(contract: Multicall): void {
+function writeDynamicNetworksJson(contract: Multicall): void {
   const jsonFile = './snapshot.networks.json'
   const networks = {
     '1': {
