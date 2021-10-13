@@ -2,13 +2,13 @@
  *Submitted for verification at Etherscan.io on 2019-06-10
  */
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.0;
+pragma solidity >=0.6.5 <0.8.0;
+pragma experimental ABIEncoderV2;
 
 /// @title Multicall - Aggregate results from multiple read-only function calls
 /// @author Michael Elliot <mike@makerdao.com>
 /// @author Joshua Levine <joshua@makerdao.com>
 /// @author Nick Johnson <arachnid@notdot.net>
-import 'hardhat/console.sol';
 
 contract Multicall {
   struct Call {
@@ -26,7 +26,6 @@ contract Multicall {
       (bool success, bytes memory ret) = calls[i].target.call(
         calls[i].callData
       );
-      console.logBytes(calls[i].callData);
       require(success);
       returnData[i] = ret;
     }
