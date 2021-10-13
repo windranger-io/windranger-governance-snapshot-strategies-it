@@ -1,7 +1,7 @@
 import snapshot from 'windranger-snapshot'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 
-export interface Example {
+export interface StrategyExample {
   network: string
   strategy: unknown
   addresses: string[]
@@ -9,7 +9,7 @@ export interface Example {
 }
 
 export async function callGetScores(
-  example: Example,
+  example: StrategyExample,
   provider: SignerWithAddress
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<ArrayLike<any>> {

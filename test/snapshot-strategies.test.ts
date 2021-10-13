@@ -11,7 +11,7 @@ import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
 import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/mutlicall-contract-setup'
-import {Example, callGetScores} from './snapshot/index.spec'
+import {StrategyExample, callGetScores} from './snapshot/index.spec'
 import {multiCallForSnapshot} from './snapshot/mutlicall-contract-setup'
 
 // Wires up Waffle with Chai
@@ -24,9 +24,7 @@ describe('Test Strategy Role Voting', () => {
     token = await deployToken(admin.address)
     timeLock = await deployTimeLock(admin.address)
     governance = await deployGovernance(token, timeLock)
-
-    //TODO chage to the voting contract after lastest Gov update
-    roleVotingExample = await exampleJson(
+    roleVotingExample = await roleVotingStrategyExample(
       'bitdao-vote-by-role',
       governance.address
     )
@@ -68,7 +66,7 @@ describe('Test Strategy Role Voting', () => {
   let token: BitToken
   let timeLock: TimelockController
   let governance: WindRangerGovernance
-  let roleVotingExample: Example
+  let roleVotingExample: StrategyExample
 })
 
 async function signer(index: number): Promise<SignerWithAddress> {
@@ -104,10 +102,10 @@ async function deployGovernance(
   return governance.deployed()
 }
 
-async function exampleJson(
+async function roleVotingStrategyExample(
   strategy: string,
   votingContract: string
-): Promise<Example> {
+): Promise<StrategyExample> {
   const signers = await ethers.getSigners()
 
   return {
