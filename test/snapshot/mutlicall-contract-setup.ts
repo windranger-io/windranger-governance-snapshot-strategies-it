@@ -2,29 +2,12 @@ import 'hardhat'
 
 import Assert from 'assert'
 import {Multicall} from '../../typechain'
-import fs from 'fs'
-import {config, ethers} from 'hardhat'
+import fs, {promises as fsPromises} from 'fs'
+import {config} from 'hardhat'
 import {expect} from 'chai'
 
 // Snapshot networks.json must be written before snapshot.js.cis.js top level
 writeNetworksJson()
-
-/**
- * Installs the Multicall contract used by Snapshot.js to connect to the HardHat
- * in-memory chain.
- * Validates the networks init file passed in, failing if the Multicall address
- * does not match the init file, with suitable message.
- */
-export async function multiCallForSnapshot(): Promise<void> {
-  try {
-    const multiCall = await deployMultiCall()
-    validateNetworksJson(multiCall)
-  } catch (error) {
-    Assert.fail(
-      `Error creating test file to use as Snapshot.js networks.json: ${error}`
-    )
-  }
-}
 
 /**
  * Guessing the vaules for the top level init of Snapshot.js
@@ -47,8 +30,11 @@ function writeNetworksJson(): void {
   }
 }
 
-//TODO improve the error message when objects don't deep equals
-function validateNetworksJson(contract: Multicall): void {
+/**
+ * Validates the networks init file passed in and used by the init of Snapshot.js has the correct address and chain id for the multi call to work correctly,
+ * failing with a suitable deep comparison message otherwise.
+ */
+export async function validateNetworksJson(contract: Multicall): Promise<void> {
   const jsonFile = './snapshot.networks.json'
   const expectedNetworks = {
     '1': {
@@ -58,13 +44,7 @@ function validateNetworksJson(contract: Multicall): void {
     }
   }
 
-  const data = fs.readFileSync(jsonFile, 'utf8')
+  const data = await fsPromises.readFile(jsonFile, 'utf8')
   const actualNetworks = JSON.parse(data)
   expect(actualNetworks).to.deep.equal(expectedNetworks)
-}
-
-async function deployMultiCall(): Promise<Multicall> {
-  const factory = await ethers.getContractFactory('Multicall')
-  const multi = <Multicall>await factory.deploy()
-  return multi.deployed()
 }

@@ -7,19 +7,25 @@ import chai, {expect} from 'chai'
 import {ethers} from 'hardhat'
 import {before} from 'mocha'
 import {solidity} from 'ethereum-waffle'
-import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
+import {
+  BitToken,
+  Multicall,
+  TimelockController,
+  WindRangerGovernance
+} from '../typechain'
 import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/mutlicall-contract-setup'
 import {StrategyExample, callGetScores} from './snapshot/index.spec'
-import {multiCallForSnapshot} from './snapshot/mutlicall-contract-setup'
+import {validateNetworksJson} from './snapshot/mutlicall-contract-setup'
 
 // Wires up Waffle with Chai
 chai.use(solidity)
 
 describe('Test Strategy Role Voting', () => {
   before(async () => {
-    await multiCallForSnapshot()
+    const multiCall = await deployMultiCall()
+    await validateNetworksJson(multiCall)
     admin = await signer(0)
     token = await deployToken(admin.address)
     timeLock = await deployTimeLock(admin.address)
@@ -100,6 +106,12 @@ async function deployGovernance(
     await factory.deploy(token.address, timeLock.address)
   )
   return governance.deployed()
+}
+
+async function deployMultiCall(): Promise<Multicall> {
+  const factory = await ethers.getContractFactory('Multicall')
+  const multi = <Multicall>await factory.deploy()
+  return multi.deployed()
 }
 
 async function roleVotingStrategyExample(
