@@ -3,29 +3,23 @@ import 'hardhat'
 import '@nomiclabs/hardhat-ethers'
 // End - Support direct Mocha run & debug
 
-import fs from 'fs'
 import chai, {expect} from 'chai'
 import {ethers} from 'hardhat'
 import {before} from 'mocha'
 import {solidity} from 'ethereum-waffle'
-import {
-  BitToken,
-  Multicall,
-  TimelockController,
-  WindRangerGovernance
-} from '../typechain'
+import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
 import {BigNumber} from 'ethers'
-import {Example, callGetScores} from './snapshot/index.spec'
-import * as Assert from 'assert'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
+import './snapshot/mutlicall-contract-setup'
+import {Example, callGetScores} from './snapshot/index.spec'
+import {setupMultiCallContract} from './snapshot/mutlicall-contract-setup'
 
 // Wires up Waffle with Chai
 chai.use(solidity)
 
 describe('Test Strategy Role Voting', () => {
   before(async () => {
-    multiCall = await deployMultiCall()
-    writeNetworksJson(multiCall)
+    await setupMultiCallContract()
     admin = await signer(0)
     token = await deployToken(admin.address)
     timeLock = await deployTimeLock(admin.address)
@@ -74,7 +68,6 @@ describe('Test Strategy Role Voting', () => {
   let token: BitToken
   let timeLock: TimelockController
   let governance: WindRangerGovernance
-  let multiCall: Multicall
   let roleVotingExample: Example
 })
 
@@ -111,12 +104,6 @@ async function deployGovernance(
   return governance.deployed()
 }
 
-async function deployMultiCall(): Promise<Multicall> {
-  const factory = await ethers.getContractFactory('Multicall')
-  const multi = <Multicall>await factory.deploy()
-  return multi.deployed()
-}
-
 async function exampleJson(
   strategy: string,
   votingContract: string
@@ -136,25 +123,5 @@ async function exampleJson(
     },
     addresses: signers.map((signer: SignerWithAddress) => signer.address),
     snapshot: 'latest'
-  }
-}
-
-//TODO use the correct chain id
-//TODO grab the id from the example
-function writeNetworksJson(contract: Multicall): void {
-  const jsonFile = './node_modules/@snapshot-labs/snapshot.js/src/networks.json'
-  const networks = {
-    '1': {
-      key: '1',
-      chainId: 33133,
-      multicall: contract.address
-    }
-  }
-
-  try {
-    const data = JSON.stringify(networks, null, 4)
-    fs.writeFileSync(jsonFile, data, 'utf8')
-  } catch (err) {
-    Assert.fail(`Error writing file: ${err}`)
   }
 }

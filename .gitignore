@@ -1,3 +1,6 @@
+# Project specific
+networks.temp.json
+
 # Hardhat
 artifacts
 cache
