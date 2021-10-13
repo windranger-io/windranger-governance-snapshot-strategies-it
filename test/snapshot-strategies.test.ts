@@ -24,7 +24,7 @@ import {validateNetworksJson} from './snapshot/mutlicall-contract-setup'
 // Wires up Waffle with Chai
 chai.use(solidity)
 
-describe('Test Strategy Role Voting', () => {
+describe('Test Strategy', () => {
   before(async () => {
     const multiCall = await deployMultiCall()
     await validateNetworksJson(multiCall)
@@ -32,40 +32,80 @@ describe('Test Strategy Role Voting', () => {
     token = await deployToken(admin.address)
     timeLock = await deployTimeLock(admin.address)
     governance = await deployGovernance(token, timeLock)
-    roleVotingExample = await roleVotingStrategyExample(
-      'bitdao-vote-by-role',
-      governance.address
-    )
-
     const delegatedVotes = BigNumber.from(6601234567890123456780n)
     await governance.setVotingPowerSingleAdmin(admin.address, delegatedVotes)
   })
 
-  it('Strategy should run without any errors', async () => {
-    scores = await callGetScores(roleVotingExample, admin)
-  }).timeout(10000)
-
-  it('Should return an array of object with addresses', () => {
-    expect(Array.isArray(scores)).equals(true)
-    expect(typeof scores[0]).equals('object')
-    expect(Object.keys(scores[0]).length).greaterThanOrEqual(1)
-    expect(
-      Object.keys(scores[0]).some((address) =>
-        roleVotingExample.addresses
-          .map((v) => v.toLowerCase())
-          .includes(address.toLowerCase())
+  describe('bitdao-role-vote', () => {
+    before(async () => {
+      roleVotingExample = await roleVotingStrategyExample(
+        'bitdao-role-vote',
+        governance.address
       )
-    ).equals(true)
-    // Check if all scores are numbers
-    expect(
-      Object.values(scores[0]).every((val) => typeof val === 'number')
-    ).equals(true)
+    })
+
+    it('Strategy should run without any errors', async () => {
+      scores = await callGetScores(roleVotingExample, admin)
+    }).timeout(10000)
+
+    it('Should return an array of object with addresses', () => {
+      expect(Array.isArray(scores)).equals(true)
+      expect(typeof scores[0]).equals('object')
+      expect(Object.keys(scores[0]).length).greaterThanOrEqual(1)
+      expect(
+        Object.keys(scores[0]).some((address) =>
+          roleVotingExample.addresses
+            .map((v) => v.toLowerCase())
+            .includes(address.toLowerCase())
+        )
+      ).equals(true)
+      // Check if all scores are numbers
+      expect(
+        Object.values(scores[0]).every((val) => typeof val === 'number')
+      ).equals(true)
+    })
+
+    it('File examples.json should include at least 1 address with a positive score', () => {
+      expect(
+        Object.values(scores[0]).some((score) => (score as number) > 0)
+      ).equals(true)
+    })
   })
 
-  it('File examples.json should include at least 1 address with a positive score', () => {
-    expect(
-      Object.values(scores[0]).some((score) => (score as number) > 0)
-    ).equals(true)
+  describe('bitdao-open-vote', () => {
+    before(async () => {
+      openVotingExample = await openVotingStrategyExample(
+        'bitdao-open-vote',
+        governance.address
+      )
+    })
+
+    it('Strategy should run without any errors', async () => {
+      scores = await callGetScores(openVotingExample, admin)
+    }).timeout(10000)
+
+    it('Should return an array of object with addresses', () => {
+      expect(Array.isArray(scores)).equals(true)
+      expect(typeof scores[0]).equals('object')
+      expect(Object.keys(scores[0]).length).greaterThanOrEqual(1)
+      expect(
+        Object.keys(scores[0]).some((address) =>
+          openVotingExample.addresses
+            .map((v) => v.toLowerCase())
+            .includes(address.toLowerCase())
+        )
+      ).equals(true)
+      // Check if all scores are numbers
+      expect(
+        Object.values(scores[0]).every((val) => typeof val === 'number')
+      ).equals(true)
+    })
+
+    it('File examples.json should include at least 1 address with a positive score', () => {
+      expect(
+        Object.values(scores[0]).some((score) => (score as number) > 0)
+      ).equals(true)
+    })
   })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,6 +114,7 @@ describe('Test Strategy Role Voting', () => {
   let token: BitToken
   let timeLock: TimelockController
   let governance: WindRangerGovernance
+  let openVotingExample: StrategyExample
   let roleVotingExample: StrategyExample
 })
 
@@ -92,6 +133,27 @@ async function roleVotingStrategyExample(
         symbol: 'BIT',
         decimals: 18,
         role: 'TREASURY_ROLE'
+      }
+    },
+    addresses: signers.map((signer: SignerWithAddress) => signer.address),
+    snapshot: 'latest'
+  }
+}
+
+async function openVotingStrategyExample(
+  strategy: string,
+  votingContract: string
+): Promise<StrategyExample> {
+  const signers = await ethers.getSigners()
+
+  return {
+    network: '1',
+    strategy: {
+      name: strategy,
+      params: {
+        address: votingContract,
+        symbol: 'BIT',
+        decimals: 18
       }
     },
     addresses: signers.map((signer: SignerWithAddress) => signer.address),
