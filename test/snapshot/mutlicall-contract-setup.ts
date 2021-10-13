@@ -1,7 +1,10 @@
+import 'hardhat'
+
 import Assert from 'assert'
 import {Multicall} from '../../typechain'
 import fs from 'fs'
-import {ethers} from 'hardhat'
+import {config, ethers} from 'hardhat'
+import {expect} from 'chai'
 
 // Snapshot networks.json must be written before snapshot.js.cis.js top level
 writeNetworksJson()
@@ -15,7 +18,7 @@ writeNetworksJson()
 export async function multiCallForSnapshot(): Promise<void> {
   try {
     const multiCall = await deployMultiCall()
-    writeDynamicNetworksJson(multiCall)
+    validateNetworksJson(multiCall)
   } catch (error) {
     Assert.fail(
       `Error creating test file to use as Snapshot.js networks.json: ${error}`
@@ -44,25 +47,20 @@ function writeNetworksJson(): void {
   }
 }
 
-//TODO check the existing contexts - ensure they match, chainId, multicall address
-//TODO use the correct chain id
-//TODO grab the id from the example
-function writeDynamicNetworksJson(contract: Multicall): void {
+//TODO improve the error message when objects don't deep equals
+function validateNetworksJson(contract: Multicall): void {
   const jsonFile = './snapshot.networks.json'
-  const networks = {
+  const expectedNetworks = {
     '1': {
       key: '1',
-      chainId: 33133,
+      chainId: config.networks.hardhat.chainId,
       multicall: contract.address
     }
   }
 
-  try {
-    const data = JSON.stringify(networks, null, 4)
-    fs.writeFileSync(jsonFile, data, 'utf8')
-  } catch (err) {
-    Assert.fail(`Error writing file: ${err}`)
-  }
+  const data = fs.readFileSync(jsonFile, 'utf8')
+  const actualNetworks = JSON.parse(data)
+  expect(actualNetworks).to.deep.equal(expectedNetworks)
 }
 
 async function deployMultiCall(): Promise<Multicall> {
