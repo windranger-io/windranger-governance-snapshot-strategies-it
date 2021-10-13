@@ -1,5 +1,5 @@
 # Project specific
-networks.temp.json
+snapshot.networks.json
 
 # Hardhat
 artifacts

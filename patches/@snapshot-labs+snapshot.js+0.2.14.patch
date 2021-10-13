@@ -583,7 +583,7 @@ index 9851da0..f1a4ff5 100644
 -	explorer: "https://explorer.palm.io"
 -}
 -};
-+var networks = require("../../../../networks.temp.json");
++var networks = require("../../../../snapshot.networks.json");
  
  var providers = {};
  function getProvider(network) {

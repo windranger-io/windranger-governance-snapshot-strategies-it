@@ -9,7 +9,7 @@ import fs from 'fs'
 import {ethers} from 'hardhat'
 import {log} from '../../config/logging'
 
-placeholderNetworksJson()
+networksJson()
 
 /*
 function sleep(milliseconds: number) {
@@ -27,7 +27,14 @@ while (!proceed && count > 0) {
   count--
 }
 */
-export async function setupMultiCallContract(): Promise<void> {
+
+/**
+ * Installs the Multicall contract used by Snapshot.js to connect to the HardHat
+ * in-memory chain.
+ * Validates the networks init file passed in, failing if the Multicall address
+ * does not match the init file, with suitable message.
+ */
+export async function multiCallForSnapshot(): Promise<void> {
   try {
     const multiCall = await deployMultiCall()
     writeNetworksJson(multiCall)
@@ -41,8 +48,8 @@ export async function setupMultiCallContract(): Promise<void> {
 /**
  * Guessing the vaules for the top level init of Snapshot.js
  */
-function placeholderNetworksJson(): void {
-  const jsonFile = './networks.temp.json'
+function networksJson(): void {
+  const jsonFile = './snapshot.networks.json'
   const networks = {
     '1': {
       key: '1',
@@ -63,7 +70,7 @@ function placeholderNetworksJson(): void {
 //TODO use the correct chain id
 //TODO grab the id from the example
 function writeNetworksJson(contract: Multicall): void {
-  const jsonFile = './networks.temp.json'
+  const jsonFile = './snapshot.networks.json'
   const networks = {
     '1': {
       key: '1',

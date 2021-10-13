@@ -12,14 +12,14 @@ import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/mutlicall-contract-setup'
 import {Example, callGetScores} from './snapshot/index.spec'
-import {setupMultiCallContract} from './snapshot/mutlicall-contract-setup'
+import {multiCallForSnapshot} from './snapshot/mutlicall-contract-setup'
 
 // Wires up Waffle with Chai
 chai.use(solidity)
 
 describe('Test Strategy Role Voting', () => {
   before(async () => {
-    await setupMultiCallContract()
+    await multiCallForSnapshot()
     admin = await signer(0)
     token = await deployToken(admin.address)
     timeLock = await deployTimeLock(admin.address)
