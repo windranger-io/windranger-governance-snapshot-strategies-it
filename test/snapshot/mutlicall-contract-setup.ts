@@ -1,8 +1,3 @@
-// Start - Support direct Mocha run & debug
-import 'hardhat'
-import '@nomiclabs/hardhat-ethers'
-// End - Support direct Mocha run & debug
-
 import Assert from 'assert'
 import {Multicall} from '../../typechain'
 import fs from 'fs'
