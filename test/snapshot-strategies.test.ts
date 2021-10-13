@@ -8,11 +8,13 @@ import {ethers} from 'hardhat'
 import {before} from 'mocha'
 import {solidity} from 'ethereum-waffle'
 import {
-  BitToken,
-  Multicall,
-  TimelockController,
-  WindRangerGovernance
-} from '../typechain'
+  deployGovernance,
+  deployMultiCall,
+  deployTimeLock,
+  deployToken,
+  signer
+} from './contracts'
+import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
 import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/mutlicall-contract-setup'
@@ -74,45 +76,6 @@ describe('Test Strategy Role Voting', () => {
   let governance: WindRangerGovernance
   let roleVotingExample: StrategyExample
 })
-
-async function signer(index: number): Promise<SignerWithAddress> {
-  const signers = await ethers.getSigners()
-  expect(signers.length).is.greaterThan(index)
-  return signers[index]
-}
-
-async function deployToken(creatorAddress: string): Promise<BitToken> {
-  const factory = await ethers.getContractFactory('BitDAO')
-  const dao = <BitToken>await factory.deploy(creatorAddress)
-  return dao.deployed()
-}
-
-async function deployTimeLock(
-  creatorAddress: string
-): Promise<TimelockController> {
-  const factory = await ethers.getContractFactory('TimelockController')
-  const lock = <TimelockController>(
-    await factory.deploy(1, [creatorAddress], [creatorAddress])
-  )
-  return lock.deployed()
-}
-
-async function deployGovernance(
-  token: BitToken,
-  timeLock: TimelockController
-): Promise<WindRangerGovernance> {
-  const factory = await ethers.getContractFactory('WindRangerGovernance')
-  const governance = <WindRangerGovernance>(
-    await factory.deploy(token.address, timeLock.address)
-  )
-  return governance.deployed()
-}
-
-async function deployMultiCall(): Promise<Multicall> {
-  const factory = await ethers.getContractFactory('Multicall')
-  const multi = <Multicall>await factory.deploy()
-  return multi.deployed()
-}
 
 async function roleVotingStrategyExample(
   strategy: string,
