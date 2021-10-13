@@ -22,7 +22,7 @@
     "lint": "eslint . --ext .ts",
     "prepare": "husky install",
     "postinstall": "patch-package",
-    "test": "mocha --exit --recursive --require ts-node/register 'test/**/*.test.ts'"
+    "test": "mocha --exit --recursive --ui bdd --require ts-node/register 'test/**/*.test.ts'"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
