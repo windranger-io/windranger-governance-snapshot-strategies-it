@@ -23,9 +23,9 @@ import {
 } from '../typechain'
 import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
-import './snapshot/mutlicall-contract-setup'
+import './snapshot/networks-json'
 import {StrategyExample, callGetScores} from './snapshot/index.spec'
-import {validateNetworksJson} from './snapshot/mutlicall-contract-setup'
+import {validateNetworksJson} from './snapshot/networks-json'
 
 // Wires up Waffle with Chai
 chai.use(solidity)
