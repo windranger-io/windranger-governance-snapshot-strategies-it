@@ -5,6 +5,7 @@ import {
   BitToken,
   Multicall,
   TimelockController,
+  VotesOracle,
   WindRangerGovernance
 } from '../typechain'
 
@@ -30,13 +31,20 @@ export async function deployTimeLock(
   return lock.deployed()
 }
 
+export async function deployVotesOracle(): Promise<VotesOracle> {
+  const factory = await ethers.getContractFactory('WindRangerVotesOracle')
+  const votes = <VotesOracle>await factory.deploy()
+  return votes.deployed()
+}
+
 export async function deployGovernance(
   token: BitToken,
-  timeLock: TimelockController
+  timeLock: TimelockController,
+  votes: VotesOracle
 ): Promise<WindRangerGovernance> {
   const factory = await ethers.getContractFactory('WindRangerGovernance')
   const governance = <WindRangerGovernance>(
-    await factory.deploy(token.address, timeLock.address)
+    await factory.deploy(token.address, timeLock.address, votes.address)
   )
   return governance.deployed()
 }

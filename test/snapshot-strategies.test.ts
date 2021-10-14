@@ -12,9 +12,15 @@ import {
   deployMultiCall,
   deployTimeLock,
   deployToken,
-  signer
+  signer,
+  deployVotesOracle
 } from './contracts'
-import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
+import {
+  BitToken,
+  TimelockController,
+  VotesOracle,
+  WindRangerGovernance
+} from '../typechain'
 import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/mutlicall-contract-setup'
@@ -24,6 +30,12 @@ import {validateNetworksJson} from './snapshot/mutlicall-contract-setup'
 // Wires up Waffle with Chai
 chai.use(solidity)
 
+const openVotePower = 100500900n
+const roleVotePower = 6601234567890123456780n
+const treasuryRole = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes('TREASURY_ROLE')
+)
+
 describe('Test Strategy', () => {
   before(async () => {
     const multiCall = await deployMultiCall()
@@ -31,9 +43,15 @@ describe('Test Strategy', () => {
     admin = await signer(0)
     token = await deployToken(admin.address)
     timeLock = await deployTimeLock(admin.address)
-    governance = await deployGovernance(token, timeLock)
-    const delegatedVotes = BigNumber.from(6601234567890123456780n)
-    await governance.setVotingPowerSingleAdmin(admin.address, delegatedVotes)
+    votes = await deployVotesOracle()
+    governance = await deployGovernance(token, timeLock, votes)
+
+    await votes.setOpenVotingPower(admin.address, openVotePower)
+    await votes.setRolesVotingPower(
+      admin.address,
+      [treasuryRole],
+      [roleVotePower]
+    )
   })
 
   describe('bitdao-role-vote', () => {
@@ -113,6 +131,7 @@ describe('Test Strategy', () => {
   let admin: SignerWithAddress
   let token: BitToken
   let timeLock: TimelockController
+  let votes: VotesOracle
   let governance: WindRangerGovernance
   let openVotingExample: StrategyExample
   let roleVotingExample: StrategyExample

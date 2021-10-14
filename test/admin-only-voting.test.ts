@@ -11,9 +11,15 @@ import {
   deployGovernance,
   deployTimeLock,
   deployToken,
+  deployVotesOracle,
   signer
 } from './contracts'
-import {BitToken, TimelockController, WindRangerGovernance} from '../typechain'
+import {
+  BitToken,
+  TimelockController,
+  VotesOracle,
+  WindRangerGovernance
+} from '../typechain'
 import {BigNumber} from 'ethers'
 
 // Wires up Waffle with Chai
@@ -29,20 +35,25 @@ describe('Single token holder (Admin)', () => {
     admin = (await signer(0)).address
     token = await deployToken(admin)
     timeLock = await deployTimeLock(admin)
-    governance = await deployGovernance(token, timeLock)
+    votes = await deployVotesOracle()
+    governance = await deployGovernance(token, timeLock, votes)
   })
 
   it('full power in an open vote', async () => {
+    expect(await governance['getVotes(address)'](admin)).equals(0n)
+
+    await votes.setOpenVotingPower(admin, tenOctillian)
+
     expect(await governance['getVotes(address)'](admin)).equals(tenOctillian)
   })
 
   it('assigned vote power in an role vote', async () => {
-    const delegatedVotes = BigNumber.from(6601234567890123456780n)
     expect(
       await governance['getVotes(address,bytes32)'](admin, treasuryRole)
     ).equals(0n)
 
-    await governance.setVotingPowerSingleAdmin(admin, delegatedVotes)
+    const delegatedVotes = BigNumber.from(6601234567890123456780n)
+    await votes.setRolesVotingPower(admin, [treasuryRole], [delegatedVotes])
 
     expect(
       await governance['getVotes(address,bytes32)'](admin, treasuryRole)
@@ -53,4 +64,5 @@ describe('Single token holder (Admin)', () => {
   let token: BitToken
   let timeLock: TimelockController
   let governance: WindRangerGovernance
+  let votes: VotesOracle
 })
