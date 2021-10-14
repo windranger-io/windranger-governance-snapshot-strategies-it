@@ -58,13 +58,5 @@
   },
   "dependencies": {
     "bunyan": "^1.8.15"
-  },
-  "lint-staged": {
-    "*.sol": [
-      "npm run format-sol"
-    ],
-    "*.ts": [
-      "npm run lint -- --fix"
-    ]
   }
 }
