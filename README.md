@@ -1,38 +1,27 @@
-# Solidity Project Template
-Providing a project with a template for the files, folder structure, dependencies, scripting, configuration (local & remote) and development standards used in a WindRanger Soldity project with TypeScript tests.
+# WindRanger Governance Snapshot-Strategies IT
 
-## Development Process
-### Git
-Trunk based approach with a single main branch and ephemeral side branches.
-https://trunkbaseddevelopment.com/
+WindRanger Governance to Snapshot-Strategies integration test suite.
 
-Create yourself a user fork off the main.
-For every changeset create a branch off your fork.
-When the changeset is complete, create a pull request to merge the changeset to main.
-After the changeset is merged, updated your fork from the upstream (main)
+Initialises an in-memory node with the Governance and MultiCall contracts, populated with test data and verifies the correctness of the WindRanger Snapshot-Strategies.
 
-Branch protection can be used to enforce this behaviour for public repo's or private repo's when owned by Pro, Team and Enterprise organisations.
+## Development
 
-#### Git messages
-Messages for commit and merge operations enter into the browsable log of project changes, providing a historical context for the project's development.
+Development follows these processes outlined in [development process](DEVELOPMENT_PROCESS.md)
 
-Consistency helps readers tremendously, please follow Conventional Commits
-https://www.conventionalcommits.org/en/v1.0.0/
+## Installation, building and running
 
-### TypeScript Style Guide
-Follow the Google TypeScript style guide, as they're sensible.
-https://google.github.io/styleguide/tsguide.html
-
-### Installation, building and running
 Git clone, then from the project root execute
 
-#### Install
+### Install
+
 To retrieve the project dependencies and before any further tasks will run correctly
+
 ```shell
 npm install
 ```
 
-#### Husky Git Commit Hooks
+### Husky Git Commit Hooks
+
 To enable Husky commit hooks to trigger the lint-staged behaviour of formatting and linting the staged files prior
 before committing, prepare your repo with `prepare`.
 
@@ -40,62 +29,49 @@ before committing, prepare your repo with `prepare`.
 npm run prepare
 ```
 
-#### Installing
+### Build and Test
 
-#### Build and Test
 ```shell
 npm run build
 npm test
 ```
 
 If you make changes that don't get picked up then add a clean into the process
+
 ```shell
 npm run clean
 npm run build
 npm test
 ```
 
+## Logging
 
-### Hardhat
-If you want to avoid using the convience scripts, then you can execute against Hardhat directly.
-
-#### All tests
-Target to run all the mocha tests found in the ```/test``` directory, transpiled as necessary.
-```shell
-npx hardhat test
-```
-
-#### Single test
-Run a single test (or a regex of tests), then pass in as an argument.
-```shell
- npx hardhat test .\test\sample.test.ts
-```
-
-#### Scripts
-The TypeScript transpiler will automatically as needed, execute through HardHat for the instantiated environment
-```shell
-npx hardhat run .\scripts\sample-script.ts
-```
-
-### Logging
 Logging is performed with Bunyan
 
-#### Bunyan CLI
+### Bunyan CLI
+
 To have the JSON logging output into a more human-readable form, pipe the stdout to the Bunyan CLI tool.
+
 ```shell
 npx hardhat accounts | npx bunyan
 ```
 
-### Local Node Setup
+## Local Node Setup - No longer works, script need updating
+
+After the project is built (with Solidity abis and binaries generated), you can set up a local HardHat node with contracts and test data using scripts.
+
 ```shell
 npx hardhat node
 
 npx hardhat run ./scripts/deploy-all.ts --network local
 ```
-Ensure the `erc20Address` (BitDAO) and `governanceAddress` match the deployed contract addresses, then:
+
+Ensure the `erc20Address` (BitDAO) and `governanceAddress` match the deployed contract addresses, then to validate the set up:
+
 ```shell
 npx hardhat run ./scripts/vote-by-role.ts --network local
 ```
+
 ```shell
 npx hardhat run ./scripts/vote-open.ts --network local
 ```
