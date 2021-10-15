@@ -2,17 +2,11 @@ import {ethers} from 'hardhat'
 import {log} from '../config/logging'
 import {BigNumber} from 'ethers'
 
-const erc20Abi = [
-  'function balanceOf(address account) external view returns (uint256)'
-]
 const roleVotingAbi = [
-  'function setVotingPowerSingleAdmin(address voter, uint256 votingPower) external',
+  'function setRolesVotingPower(address account, bytes32[] calldata roles, uint256[] calldata votingPowers) external',
   'function getVotes(address account, bytes32 role) external view returns (uint256)'
 ]
-
-const erc20Address = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
-const governanceAddress = '0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0'
-
+const votesAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0'
 const treasuryRole = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes('TREASURY_ROLE')
 )
@@ -21,27 +15,22 @@ async function main() {
   const signers = await ethers.getSigners()
   const admin = signers[0]
 
-  const erc20 = new ethers.Contract(erc20Address, erc20Abi, admin)
+  const votesOracle = new ethers.Contract(votesAddress, roleVotingAbi, admin)
 
-  const governance = new ethers.Contract(
-    governanceAddress,
-    roleVotingAbi,
-    admin
-  )
-
-  const balance = await erc20.balanceOf(admin.address)
-  log.info('%s has token balance of %s', admin.address, balance)
-
-  const votingPower = await governance.getVotes(admin.address, treasuryRole)
+  const votingPower = await votesOracle.getVotes(admin.address, treasuryRole)
   log.info('%s role: %s, votes: %s', admin.address, treasuryRole, votingPower)
 
   // setVotingPower reverts if already called :. only call if power not already set.
   if (votingPower == 0) {
-    const delegatedVotes = BigNumber.from(6601234567890123456780n)
-    log.info('Setting the voting power: %s', delegatedVotes)
-    await governance.setVotingPowerSingleAdmin(admin.address, delegatedVotes)
+    const roleVotePower = BigNumber.from(6601234567890123456780n)
+    log.info('Setting the voting power: %s', roleVotePower)
+    await votesOracle.setRolesVotingPower(
+      admin.address,
+      [treasuryRole],
+      [roleVotePower]
+    )
 
-    const votingPowerAfter = await governance.getVotes(
+    const votingPowerAfter = await votesOracle.getVotes(
       admin.address,
       treasuryRole
     )

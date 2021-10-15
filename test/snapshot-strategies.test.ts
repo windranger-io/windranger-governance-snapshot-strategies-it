@@ -21,7 +21,6 @@ import {
   VotesOracle,
   WindRangerGovernance
 } from '../typechain'
-import {BigNumber} from 'ethers'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/networks-json'
 import {StrategyExample, callGetScores} from './snapshot/index.spec'

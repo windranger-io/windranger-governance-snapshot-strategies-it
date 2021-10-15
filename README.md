@@ -48,7 +48,7 @@ npm test
 
 Logging is performed with Bunyan
 
-### Bunyan CLI
+### Bunyan CL
 
 To have the JSON logging output into a more human-readable form, pipe the stdout to the Bunyan CLI tool.
 
@@ -56,9 +56,11 @@ To have the JSON logging output into a more human-readable form, pipe the stdout
 npx hardhat accounts | npx bunyan
 ```
 
-## Local Node Setup - No longer works, script need updating
+## Local Node Setup
 
-After the project is built (with Solidity abis and binaries generated), you can set up a local HardHat node with contracts and test data using scripts.
+Separate to the integration tests, you can set up a local HardHat node instance with contracts and test data using scripts.
+
+The motivation for setting up a local HardHat node would be to run separate tests against it.
 
 ```shell
 npx hardhat node
@@ -66,7 +68,7 @@ npx hardhat node
 npx hardhat run ./scripts/deploy-all.ts --network local
 ```
 
-Ensure the `erc20Address` (BitDAO) and `governanceAddress` match the deployed contract addresses, then to validate the set up:
+In the script ensure that `votesOracleAddress` (WindRanger Votes Oracle) matches the deployed contract address, then to validate the setup:
 
 ```shell
 npx hardhat run ./scripts/vote-by-role.ts --network local
