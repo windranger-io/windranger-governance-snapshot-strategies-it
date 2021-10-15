@@ -71,9 +71,9 @@ npx hardhat run ./scripts/deploy-all.ts --network local
 In the script ensure that `votesOracleAddress` (WindRanger Votes Oracle) matches the deployed contract address, then to validate the setup:
 
 ```shell
-npx hardhat run ./scripts/vote-by-role.ts --network local
+npx hardhat run ./scripts/validate-role-vote-init.ts --network local
 ```
 
 ```shell
-npx hardhat run ./scripts/vote-open.ts --network local
+npx hardhat run ./scripts/validate-open-vote-init.ts --network local
 ```
