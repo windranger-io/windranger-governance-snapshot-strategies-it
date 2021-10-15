@@ -1,11 +1,11 @@
 import {run} from 'hardhat'
 import {log} from '../config/logging'
-import {deployMulticall} from './deploy'
+import {deployMultiCall} from './deploy'
 
 async function main() {
   await run('compile')
 
-  const receipt = await deployMulticall()
+  const receipt = await deployMultiCall()
 
   log.info('Deployed Multicall contract, receipt: %s', receipt)
 }

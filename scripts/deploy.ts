@@ -9,10 +9,11 @@ export async function deployBitDao(admin: string): Promise<TransactionReceipt> {
 
 export async function deployGovernance(
   erc20: string,
-  timelock: string
+  timeLock: string,
+  votes: string
 ): Promise<TransactionReceipt> {
   const Governance = await ethers.getContractFactory('Governance')
-  const aggregate = await Governance.deploy(erc20, timelock)
+  const aggregate = await Governance.deploy(erc20, timeLock, votes)
   return aggregate.deployTransaction.wait()
 }
 
@@ -26,8 +27,14 @@ export async function deployTimeLockController(
   return timelock.deployTransaction.wait()
 }
 
-export async function deployMulticall(): Promise<TransactionReceipt> {
+export async function deployMultiCall(): Promise<TransactionReceipt> {
   const Multicall = await ethers.getContractFactory('Multicall')
   const aggregate = await Multicall.deploy()
   return aggregate.deployTransaction.wait()
+}
+
+export async function deployVotesOracle(): Promise<TransactionReceipt> {
+  const factory = await ethers.getContractFactory('WindRangerVotesOracle')
+  const votes = await factory.deploy()
+  return votes.deployTransaction.wait()
 }

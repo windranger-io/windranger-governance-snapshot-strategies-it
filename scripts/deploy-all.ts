@@ -2,9 +2,10 @@ import {run, ethers} from 'hardhat'
 import {log} from '../config/logging'
 import {
   deployBitDao,
-  deployMulticall,
+  deployMultiCall,
   deployGovernance,
-  deployTimeLockController
+  deployTimeLockController,
+  deployVotesOracle
 } from './deploy'
 
 async function main() {
@@ -21,16 +22,20 @@ async function main() {
   const timelockAddress = timelockReceipt.contractAddress
   log.info('Timelock @ %s', timelockAddress)
 
+  const votesReceipt = await deployVotesOracle()
+  const votesAddress = votesReceipt.contractAddress
+  log.info('Votes Oracle @ %s', votesAddress)
+
   const governanceReceipt = await deployGovernance(
     bitDaoAddress,
-    timelockAddress
+    timelockAddress,
+    votesAddress
   )
   const governanceAddress = governanceReceipt.contractAddress
   log.info('Governance @ %s', governanceAddress)
 
-  const multicallReceipt = await deployMulticall()
+  const multicallReceipt = await deployMultiCall()
   const multicallAddress = multicallReceipt.contractAddress
-
   log.info('Multicall @ %s', multicallAddress)
 }
 
