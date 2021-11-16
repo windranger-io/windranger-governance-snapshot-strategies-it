@@ -9,7 +9,7 @@
 
 
 # Global code owner (WindRanger core team)
-*           @windranger-io/Windranger-core
+*           @windranger-io/windranger-core
 
 # GitHub Actions owners
-/.github/   @CjHare
+/.github/   @windranger-io/windranger-core
