@@ -31,7 +31,7 @@
     "@typechain/ethers-v5": "7.2.0",
     "@typechain/hardhat": "2.3.1",
     "@types/bunyan": "1.8.8",
-    "@types/chai": "4.3.0",
+    "@types/chai": "4.3.1",
     "@types/mocha": "9.1.0",
     "@types/node": "17.0.23",
     "@typescript-eslint/eslint-plugin": "5.19.0",
