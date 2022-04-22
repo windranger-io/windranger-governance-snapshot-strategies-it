@@ -7,7 +7,7 @@ import {
   TimelockController,
   VotesOracle,
   WindRangerGovernance
-} from '../typechain'
+} from '../typechain-types'
 
 export async function signer(index: number): Promise<SignerWithAddress> {
   const signers = await ethers.getSigners()
