@@ -1,7 +1,7 @@
 import 'hardhat'
 
 import Assert from 'assert'
-import {Multicall} from '../../typechain'
+import {Multicall} from '../../typechain-types'
 import fs, {promises as fsPromises} from 'fs'
 import {config} from 'hardhat'
 import {expect} from 'chai'

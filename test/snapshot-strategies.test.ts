@@ -20,7 +20,7 @@ import {
   TimelockController,
   VotesOracle,
   WindRangerGovernance
-} from '../typechain'
+} from '../typechain-types'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import './snapshot/networks-json'
 import {StrategyExample, callGetScores} from './snapshot/index.spec'

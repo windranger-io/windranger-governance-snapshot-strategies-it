@@ -19,7 +19,7 @@ import {
   TimelockController,
   VotesOracle,
   WindRangerGovernance
-} from '../typechain'
+} from '../typechain-types'
 import {BigNumber} from 'ethers'
 
 // Wires up Waffle with Chai
